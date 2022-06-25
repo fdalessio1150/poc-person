@@ -5,6 +5,7 @@ import br.com.poc.person.PersonFactory.PersonFactory.createRequestPersonTombamen
 import br.com.poc.person.model.Person
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
+import java.util.stream.Stream
 
 class PersonApplicationTests {
 
@@ -16,7 +17,9 @@ class PersonApplicationTests {
 	}
 
 	fun processFields(request: Person, database: Person) {
-		println("TODO")
+		var start: Long = System.nanoTime()
+
+		println(System.nanoTime() - start)
 	}
 
 }
