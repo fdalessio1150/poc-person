@@ -1,6 +1,6 @@
 package br.com.poc.person
 
-import br.com.poc.person.model.*
+import br.com.poc.person.application.port.out.model.*
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime

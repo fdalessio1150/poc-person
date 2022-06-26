@@ -6,23 +6,31 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class PersonMsg {
+    @JsonProperty("id_inquilino")
+    var tenantId: String = ""
 
     @JsonProperty("id_cliente")
     var personId: String = ""
+
+    @JsonProperty("id_jornada")
+    var journeyId: String = ""
 
     @JsonProperty("nome_completo")
     var fullName: GenericPayload? = null
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @JsonProperty("data_nascimento_fundacao")
-    var dataNascimentoFundacao: GenericPayload? = null
+    var birthFoundationDate: GenericPayload? = null
 
     @JsonProperty("nacionalidades")
-    var nacionalidades: GenericPayload? = null
+    var nationalities: GenericPayload? = null
 
     @JsonProperty("enderecos")
-    var enderecos: Collection<Any>? = mutableListOf()
+    var addresses: Collection<Any>? = mutableListOf()
 
     @JsonProperty("telefones")
-    var telefones: Collection<Any>? = mutableListOf()
+    var phones: Collection<Any>? = mutableListOf()
+
+    @JsonProperty("patrimonio")
+    var patrimony: Collection<Any>? = mutableListOf()
 }
