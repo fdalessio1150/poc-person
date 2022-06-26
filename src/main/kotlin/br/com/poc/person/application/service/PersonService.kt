@@ -2,7 +2,6 @@ package br.com.poc.person.application.service
 
 import br.com.poc.person.adapter.`in`.message.PersonMsg
 import br.com.poc.person.application.port.`in`.IPersonUseCase
-import br.com.poc.person.application.port.`in`.PersonCmd
 import br.com.poc.person.application.port.out.model.*
 import br.com.poc.person.md5
 import org.springframework.context.annotation.Configuration
@@ -193,9 +192,172 @@ fun getFromDb(person: Person): Person? {
     return newPerson()
 }
 
-fun normalizePerson(personCmd: PersonCmd): Person {
-//    TODO("To be implemented")
-    return newPerson()
+fun normalizePerson(personMsg: PersonMsg): Person {
+
+    var defaultValidation = Validation(
+        sourceDate = LocalDateTime.now(),
+        information = "information",
+        journeyId = "1",
+        level = 2,
+        sourceCode = 3,
+        methodCode = 4,
+        validateCompletess = true,
+        isCritical = false,
+    )
+    if (personMsg.addresses != null)
+        for (address in personMsg.addresses!!) {
+            var address1 = Address(
+                principal = address.principal,
+                purposes = mutableSetOf(address.purposes),
+                publicArea = address.publicArea,
+                number = address.number,
+                complement = address.complement,
+                neighborhood = address.neighborhood,
+                zipCode = address.zipCode,
+                postalAreaCode = address.postalAreaCode,
+                city = address.city,
+                state = address.state,
+                country = address.country,
+                department = address.department,
+            )
+            var address1Hash = hashFields(
+                address1.postalAreaCode,
+                address1.number,
+                address1.city,
+                address1.state,
+                address1.country
+            )
+        }
+    var address2 = Address(
+        principal = true,
+        purposes = mutableSetOf(14, 15),
+        publicArea = "publicArea",
+        number = 16,
+        complement = "complement",
+        neighborhood = "neighborhood",
+        zipCode = "zipCode",
+        postalAreaCode = "postalAreaCode",
+        city = "city",
+        state = "state",
+        country = "country",
+        department = "department",
+    )
+    var address2Hash = hashFields(
+        address2.postalAreaCode,
+        address2.number,
+        address2.city,
+        address2.state,
+        address2.country
+    )
+    var relationship1 = Relationship(
+        idTenant = "idTenant1",
+        personId = "personId1",
+    )
+    var relationship2 = Relationship(
+        idTenant = "idTenant2",
+        personId = "personId2",
+    )
+    var phone1 = Phone(
+        principal = true,
+        type = 16,
+        purposes = mutableSetOf(17, 18),
+        ddi = 18,
+        ddd = 19,
+        number = 987654321,
+        branchLine = 20,
+        department = "department1",
+        contactname = "contactname1",
+    )
+    var phone1Hash = hashFields(
+        phone1.ddi, phone1.ddd, phone1.number
+    )
+    var phone2 = Phone(
+        principal = false,
+        type = 21,
+        purposes = mutableSetOf(22),
+        ddi = 23,
+        ddd = 24,
+        number = 198765432,
+        branchLine = 25,
+        department = "department2",
+        contactname = "contactname2",
+    )
+    var phone2Hash = hashFields(
+        phone2.ddi, phone2.ddd, phone2.number
+    )
+    var patrimony1 = Patrimony(
+        hasNoPatrimony = true,
+        patrimonyType = 26,
+        patrimonyValue = BigDecimal.valueOf(45678.90),
+    )
+    var patrimony1Hash = hashFields(
+        patrimony1.patrimonyType, patrimony1.patrimonyValue
+    )
+    var patrimony2 = Patrimony(
+        hasNoPatrimony = false,
+        patrimonyType = 27,
+        patrimonyValue = BigDecimal.valueOf(98765.40),
+    )
+    var patrimony2Hash = hashFields(
+        patrimony2.patrimonyType, patrimony2.patrimonyValue
+    )
+
+    return Person(
+        personId = "personId",
+        tenantId = "tenantId",
+        journeyId = "5",
+        isCompleteness = true,
+        isTombamento = false,
+        fullName = PersonObject("fullName", defaultValidation),
+        birthDate = PersonObject(LocalDate.now(), defaultValidation),
+        civilStatus = PersonObject(6, defaultValidation),
+        nationalities = PersonObject(listOf(7, 8, 9), defaultValidation),
+        address = mutableSetOf(
+            PersonAddress(
+                value = address1,
+                validation = defaultValidation,
+                id = "addressId1",
+                relationships = mutableSetOf(relationship1, relationship2),
+                hashValue = address1Hash.value!!,
+                hashVersion = address1Hash.version!!
+            ),
+            PersonAddress(
+                address2,
+                defaultValidation,
+                "addressId2",
+                mutableSetOf(relationship1),
+                address2Hash.value!!,
+                address2Hash.version!!
+            ),
+        ),
+        phone = mutableSetOf(
+            PersonPhone(
+                phone1,
+                defaultValidation,
+                "personPhone1",
+                mutableSetOf(relationship2),
+                phone1Hash.value!!,
+                phone1Hash.version!!,
+            ),
+            PersonPhone(
+                phone2, defaultValidation, "personPhone2", mutableSetOf(relationship2, relationship1),
+                phone2Hash.value!!,
+                phone2Hash.version!!,
+            ),
+        ),
+        patrimony = mutableSetOf(
+            PersonPatrimony(
+                patrimony1, defaultValidation, "personPatrimony1",
+                patrimony1Hash.value!!,
+                patrimony1Hash.version!!,
+            ),
+            PersonPatrimony(
+                patrimony2, defaultValidation, "personPatrimony2",
+                patrimony2Hash.value!!,
+                patrimony2Hash.version!!,
+            ),
+        ),
+    )
 }
 
 fun getIdAddress(personAddress: PersonAddress): String {
@@ -322,7 +484,7 @@ fun <T> combinedMutableList(mutableList: MutableSet<T>?, newMutableList: Mutable
 }
 
 fun updatePerson(person: Person, personNormalized: Person) {
-//    These fields should not be updates TODO: ANSWER: Should it raise in case of any mismatch from these fields between DB and req?
+//    These fields should not be updated TODO: ANSWER: Should it raise in case of any mismatch from these fields between DB and req?
 //    val personId: String? = null,
 //    val tenantId: String? = null,
 
@@ -398,12 +560,12 @@ fun updatePerson(person: Person, personNormalized: Person) {
 @Configuration
 class PersonService : IPersonUseCase {
 
-    override fun upsertPerson(personCmd: PersonCmd): PersonMsg {
+    override fun upsertPerson(personMsg: PersonMsg): PersonMsg {
         // TODO: Enrich validation for journey
-        // logic to check if person and tenant already exists in database
-        // assuming that this person already exists in DB
+        // TODO: logic to check if person and tenant already exists in database
+        // TODO: assuming that this person already exists in DB
 
-        var personNormalized = normalizePerson(personCmd)
+        var personNormalized = normalizePerson(personMsg)
 
         var person = getFromDb(personNormalized)
         if (person != null)
@@ -415,4 +577,11 @@ class PersonService : IPersonUseCase {
         // FIXME: Merge data from request before return
         return personMsg
     }
+
+    fun compareAndHashFields(personRequest: Person): Triple(personRequest: Person, personOldDB: Person, personNewDB: Person) {
+
+        return Triple( personRequest: Person, personOldDB: Person, personNewDB: Person )
+    }
+
+
 }
