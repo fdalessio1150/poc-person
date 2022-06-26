@@ -18,7 +18,7 @@ class PersonMsg {
     @JsonProperty("nome_completo")
     var fullName: GenericPayload? = null
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonProperty("data_nascimento_fundacao")
     var birthFoundationDate: GenericPayload? = null
 
@@ -26,11 +26,11 @@ class PersonMsg {
     var nationalities: GenericPayload? = null
 
     @JsonProperty("enderecos")
-    var addresses: Collection<Any>? = mutableListOf()
+    var addresses: Set<Address>? = null
 
     @JsonProperty("telefones")
-    var phones: Collection<Any>? = mutableListOf()
+    var phones: Set<Phone>? = null
 
     @JsonProperty("patrimonio")
-    var patrimony: Collection<Any>? = mutableListOf()
+    var patrimony: Set<Patrimony>? = null
 }

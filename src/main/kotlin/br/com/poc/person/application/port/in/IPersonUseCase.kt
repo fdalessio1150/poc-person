@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 interface IPersonUseCase {
-    fun upsertPerson(command: PersonCmd): PersonMsg
+    fun upsertPerson(command: PersonMsg): PersonMsg
 }
