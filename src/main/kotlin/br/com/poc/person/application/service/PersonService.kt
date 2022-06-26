@@ -1,5 +1,6 @@
 package br.com.poc.person.application.service
 
+import br.com.poc.person.adapter.`in`.message.PersonMsg
 import br.com.poc.person.application.port.`in`.IPersonUseCase
 import br.com.poc.person.application.port.`in`.PersonCmd
 import br.com.poc.person.application.port.out.model.*
@@ -22,7 +23,7 @@ fun newPerson(): Person {
     var defaultValidation = Validation(
         sourceDate = LocalDateTime.now(),
         information = "information",
-        journeyId = 1,
+        journeyId = "1",
         level = 2,
         sourceCode = 3,
         methodCode = 4,
@@ -31,7 +32,7 @@ fun newPerson(): Person {
     )
     var address1 = Address(
         principal = true,
-        purposes = setOf(10, 11, 12),
+        purposes = mutableSetOf(10, 11, 12),
         publicArea = "publicArea",
         number = 13,
         complement = "complement",
@@ -43,9 +44,16 @@ fun newPerson(): Person {
         country = "country",
         department = "department",
     )
+    var address1Hash = hashFields(
+        address1.postalAreaCode,
+        address1.number,
+        address1.city,
+        address1.state,
+        address1.country
+    )
     var address2 = Address(
         principal = true,
-        purposes = setOf(14, 15),
+        purposes = mutableSetOf(14, 15),
         publicArea = "publicArea",
         number = 16,
         complement = "complement",
@@ -56,6 +64,13 @@ fun newPerson(): Person {
         state = "state",
         country = "country",
         department = "department",
+    )
+    var address2Hash = hashFields(
+        address2.postalAreaCode,
+        address2.number,
+        address2.city,
+        address2.state,
+        address2.country
     )
     var relationship1 = Relationship(
         idTenant = "idTenant1",
@@ -68,7 +83,7 @@ fun newPerson(): Person {
     var phone1 = Phone(
         principal = true,
         type = 16,
-        purposes = setOf(17, 18),
+        purposes = mutableSetOf(17, 18),
         ddi = 18,
         ddd = 19,
         number = 987654321,
@@ -76,10 +91,13 @@ fun newPerson(): Person {
         department = "department1",
         contactname = "contactname1",
     )
+    var phone1Hash = hashFields(
+        phone1.ddi, phone1.ddd, phone1.number
+    )
     var phone2 = Phone(
         principal = false,
         type = 21,
-        purposes = setOf(22),
+        purposes = mutableSetOf(22),
         ddi = 23,
         ddd = 24,
         number = 198765432,
@@ -87,38 +105,80 @@ fun newPerson(): Person {
         department = "department2",
         contactname = "contactname2",
     )
+    var phone2Hash = hashFields(
+        phone2.ddi, phone2.ddd, phone2.number
+    )
     var patrimony1 = Patrimony(
         hasNoPatrimony = true,
         patrimonyType = 26,
         patrimonyValue = BigDecimal.valueOf(45678.90),
+    )
+    var patrimony1Hash = hashFields(
+        patrimony1.patrimonyType, patrimony1.patrimonyValue
     )
     var patrimony2 = Patrimony(
         hasNoPatrimony = false,
         patrimonyType = 27,
         patrimonyValue = BigDecimal.valueOf(98765.40),
     )
+    var patrimony2Hash = hashFields(
+        patrimony2.patrimonyType, patrimony2.patrimonyValue
+    )
 
     return Person(
         personId = "personId",
         tenantId = "tenantId",
-        journeyId = 5,
+        journeyId = "5",
         isCompleteness = true,
         isTombamento = false,
         fullName = PersonObject("fullName", defaultValidation),
         birthDate = PersonObject(LocalDate.now(), defaultValidation),
         civilStatus = PersonObject(6, defaultValidation),
         nationalities = PersonObject(listOf(7, 8, 9), defaultValidation),
-        address = listOf(
-            PersonAddress(address1, defaultValidation, "addressId1", setOf(relationship1, relationship2)),
-            PersonAddress(address2, defaultValidation, "addressId2", setOf(relationship1)),
+        address = mutableSetOf(
+            PersonAddress(
+                value = address1,
+                validation = defaultValidation,
+                id = "addressId1",
+                relationships = mutableSetOf(relationship1, relationship2),
+                hashValue = address1Hash.value!!,
+                hashVersion = address1Hash.version!!
+            ),
+            PersonAddress(
+                address2,
+                defaultValidation,
+                "addressId2",
+                mutableSetOf(relationship1),
+                address2Hash.value!!,
+                address2Hash.version!!
+            ),
         ),
-        phone = listOf(
-            PersonPhone(phone1, defaultValidation, "personPhone1", setOf(relationship2)),
-            PersonPhone(phone2, defaultValidation, "personPhone2", setOf(relationship2, relationship1)),
+        phone = mutableSetOf(
+            PersonPhone(
+                phone1,
+                defaultValidation,
+                "personPhone1",
+                mutableSetOf(relationship2),
+                phone1Hash.value!!,
+                phone1Hash.version!!,
+            ),
+            PersonPhone(
+                phone2, defaultValidation, "personPhone2", mutableSetOf(relationship2, relationship1),
+                phone2Hash.value!!,
+                phone2Hash.version!!,
+            ),
         ),
-        patrimony = listOf(
-            PersonPatrimony(patrimony1, defaultValidation, "personPatrimony1"),
-            PersonPatrimony(patrimony2, defaultValidation, "personPatrimony2"),
+        patrimony = mutableSetOf(
+            PersonPatrimony(
+                patrimony1, defaultValidation, "personPatrimony1",
+                patrimony1Hash.value!!,
+                patrimony1Hash.version!!,
+            ),
+            PersonPatrimony(
+                patrimony2, defaultValidation, "personPatrimony2",
+                patrimony2Hash.value!!,
+                patrimony2Hash.version!!,
+            ),
         ),
     )
 }
@@ -156,14 +216,14 @@ fun getIdPatrimony(personPatrimony: PersonPatrimony): String {
     return personPatrimony.id
 }
 
-fun hashAddress(personAddress: PersonAddress): Hash {
-    var address = personAddress.value
-    return hashFields(address.postalAreaCode, address.number, address.city, address.state, address.country)
-}
-
 fun <T> hashFields(vararg values: T?): Hash {
     val stringToHash = values.asList().joinToString(separator = HASH_LIST_SEPARATOR)
     return Hash(stringToHash.md5())
+}
+
+fun hashAddress(personAddress: PersonAddress): Hash {
+    var address = personAddress.value
+    return hashFields(address.postalAreaCode, address.number, address.city, address.state, address.country)
 }
 
 fun hashPhone(personPhone: PersonPhone): Hash {
@@ -176,18 +236,37 @@ fun hashPatrimony(personPatrimony: PersonPatrimony): Hash {
     return hashFields(patrimony.patrimonyType, patrimony.patrimonyValue)
 }
 
-fun <R> getItemInList(list: MutableList<PersonObject<*>>?, itemHash: Hash, hashFunction: (input: R) -> Hash): R? {
+fun getAddressHashFromDb(personAddress: PersonAddress): Hash {
+    return Hash(personAddress.hashValue, personAddress.hashVersion)
+}
+
+fun getPhoneHashFromDb(personPhone: PersonPhone): Hash {
+    return Hash(personPhone.hashValue, personPhone.hashVersion)
+}
+
+fun getPatrimonyHashFromDb(personPatrimony: PersonPatrimony): Hash {
+    return Hash(personPatrimony.hashValue, personPatrimony.hashVersion)
+}
+
+fun <R> getItemInList(
+    list: MutableSet<R>?,
+    getHashFromDbFunction: (input: R) -> Hash,
+    item: R,
+    hashFunction: (input: R) -> Hash
+): R? {
     // WARNING: The following implementation has a O(n) time complexity. If possible, consider evaluating a faster solution where the hash column in DB is indexed/unique (if available), so the query of the `hash` can be done inside the DB in O(1) time complexity
     if (list != null) {
         for (itemInDb in list) {
-            var hashInDb = Hash(itemInDb.hashValue, itemInDb.hashVersion)
-            if (hashInDb.version!! > itemHash?.version!!)
+            var hashInDb = getHashFromDbFunction.invoke(itemInDb)
+            var hashItem = hashFunction.invoke(item)
+
+            if (hashInDb.version!! > hashItem?.version!!)
                 throw Exception("Hashed value in DB cannot have a newer version than from the API")  // TODO: create an Exception class for this
-            else if (hashInDb.version!! < itemHash?.version!!) {
-                hashInDb = hashFunction.invoke(itemInDb)  // FIXME: Find a way to solve this
+            else if (hashInDb.version!! < hashItem?.version!!) {
+                hashInDb = hashFunction.invoke(itemInDb)
 //                itemInDb.save // TODO("To be implemented")  // Depends on the DB API / ORM
             }
-            if (hashInDb.value == itemHash.value)
+            if (hashInDb.value == hashItem.value)
                 return itemInDb
         }
     }
@@ -195,9 +274,10 @@ fun <R> getItemInList(list: MutableList<PersonObject<*>>?, itemHash: Hash, hashF
 }
 
 fun <K, V> separateHashableListInDb(
-    listInDb: MutableList<V>?,
-    listNormalized: MutableList<V>?,
+    listInDb: MutableSet<V>?,
+    listNormalized: MutableSet<V>?,
     getIdFunction: (input: V) -> K,
+    getHashFromDbFunction: (input: V) -> Hash,
     hashFunction: (input: V) -> Hash
 ): Triple<MutableMap<K, V>?, MutableMap<K, V>?, MutableMap<K, V>?> {
 
@@ -206,14 +286,14 @@ fun <K, V> separateHashableListInDb(
     var itemsNormalizedNotInDb: MutableMap<K, V>? = mutableMapOf<K, V>()
 
     if (listInDb == null) {
-        itemsNormalizedNotInDb = listNormalized
+        if (listNormalized != null) {
+            for (itemNormalized in listNormalized)
+                itemsNormalizedNotInDb?.put(getIdFunction(itemNormalized), itemNormalized)
+        }
     } else if (listNormalized != null) {
-        var hash: Hash
         var item: V?
         for (itemNormalized in listNormalized) {
-            hash = hashFunction.invoke(itemNormalized)
-
-            item = getItemInList(listInDb, hash, hashFunction)
+            item = getItemInList(listInDb, getHashFromDbFunction, itemNormalized, hashFunction)
             if (item != null) {
                 itemsInDb?.put(getIdFunction(item), item)
                 itemsNormalizedInDb?.put(getIdFunction(itemNormalized), itemNormalized)
@@ -228,7 +308,7 @@ fun <K, V> separateHashableListInDb(
     return Triple(itemsInDb, itemsNormalizedInDb, itemsNormalizedNotInDb)
 }
 
-fun <T> combinedMutableList(mutableList: MutableList<T>?, newMutableList: MutableList<T>?): MutableList<T>? {
+fun <T> combinedMutableList(mutableList: MutableSet<T>?, newMutableList: MutableSet<T>?): MutableSet<T>? {
     if (newMutableList == null)
         return mutableList
 
@@ -260,18 +340,21 @@ fun updatePerson(person: Person, personNormalized: Person) {
         person.address,
         personNormalized.address,
         ::getIdAddress,
+        ::getAddressHashFromDb,
         ::hashAddress
     )
     var (personPhonesInDb, personNormalizedPhonesInDb, personNormalizedPhonesNotInDb) = separateHashableListInDb(
         person.phone,
         personNormalized.phone,
         ::getIdPhone,
+        ::getPhoneHashFromDb,
         ::hashPhone
     )
     var (personPatrimoniesInDb, personNormalizedPatrimoniesInDb, personNormalizedPatrimoniesNotInDb) = separateHashableListInDb(
         person.patrimony,
         personNormalized.patrimony,
         ::getIdPatrimony,
+        ::getPatrimonyHashFromDb,
         ::hashPatrimony
     )
 
@@ -298,15 +381,15 @@ fun updatePerson(person: Person, personNormalized: Person) {
     // Add new data
     if (personNormalizedAddressesNotInDb != null && personNormalizedAddressesNotInDb.values.isNotEmpty())
         person.address =
-            combinedMutableList(person.address, personNormalizedAddressesNotInDb.values.toMutableList())
+            combinedMutableList(person.address, personNormalizedAddressesNotInDb.values.toMutableSet())
 
     if (personNormalizedPhonesNotInDb != null && personNormalizedPhonesNotInDb.values.isNotEmpty())
         person.phone =
-            combinedMutableList(person.phone, personNormalizedPhonesNotInDb.values.toMutableList())
+            combinedMutableList(person.phone, personNormalizedPhonesNotInDb.values.toMutableSet())
 
     if (personNormalizedPatrimoniesNotInDb != null && personNormalizedPatrimoniesNotInDb.values.isNotEmpty())
         person.patrimony =
-            combinedMutableList(person.patrimony, personNormalizedPatrimoniesNotInDb.values.toMutableList())
+            combinedMutableList(person.patrimony, personNormalizedPatrimoniesNotInDb.values.toMutableSet())
 
 //    TODO("To be implemented")
 //    person.save()
@@ -315,10 +398,10 @@ fun updatePerson(person: Person, personNormalized: Person) {
 @Configuration
 class PersonService : IPersonUseCase {
 
-    override fun upsertPerson(personCmd: PersonCmd): Person {
+    override fun upsertPerson(personCmd: PersonCmd): PersonMsg {
         // TODO: Enrich validation for journey
         // logic to check if person and tenant already exists in database
-        // assuming that this person already exists
+        // assuming that this person already exists in DB
 
         var personNormalized = normalizePerson(personCmd)
 
@@ -327,6 +410,9 @@ class PersonService : IPersonUseCase {
             updatePerson(person, personNormalized)
         else person = addPerson(personNormalized)
 
-        return person
+        val personMsg = person.toPersonMsg()
+
+        // FIXME: Merge data from request before return
+        return personMsg
     }
 }
