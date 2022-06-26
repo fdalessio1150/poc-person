@@ -2,10 +2,8 @@ package br.com.poc.person
 
 import br.com.poc.person.PersonFactory.PersonFactory.createDatabasePersonTombamentoJourney
 import br.com.poc.person.PersonFactory.PersonFactory.createRequestPersonTombamentoJourney
-import br.com.poc.person.model.Person
+import br.com.poc.person.application.port.out.model.Person
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
-import java.util.stream.Stream
 
 class PersonApplicationTests {
 
