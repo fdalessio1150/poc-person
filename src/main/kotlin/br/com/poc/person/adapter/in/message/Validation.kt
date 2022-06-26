@@ -10,9 +10,9 @@ import java.time.LocalDateTime
 
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-data class Validation (
+data class Validation(
     @JsonProperty("id_jornada")
-    var jornada: Int? = null,
+    var jornada: String? = null,
 
     @JsonProperty("nivel_completude")
     var nivelCompletude: Int? = null,
