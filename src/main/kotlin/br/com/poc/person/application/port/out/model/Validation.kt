@@ -10,5 +10,7 @@ data class Validation(
     var sourceCode: Int? = null,
     var methodCode: Int? = null,
     var validateCompletess: Boolean? = null,
-    var isCritical: Boolean? = null
+    var isCritical: Boolean? = null,
+    var hashValue: String? = null,
+    var hashVersion: Int? = null
 )

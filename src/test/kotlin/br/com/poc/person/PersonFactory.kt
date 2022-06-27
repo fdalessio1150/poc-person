@@ -1,5 +1,9 @@
 package br.com.poc.person
 
+import br.com.poc.person.HashGenerator.HashGenerator.hashAddress
+import br.com.poc.person.HashGenerator.HashGenerator.hashFields
+import br.com.poc.person.HashGenerator.HashGenerator.hashPatrimony
+import br.com.poc.person.HashGenerator.HashGenerator.hashPhone
 import br.com.poc.person.application.port.out.model.*
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -10,26 +14,25 @@ class PersonFactory {
     companion object PersonFactory {
 
         val HASH_VERSION = 1
-        fun validation(
-            sourceDate: LocalDateTime?,
-            journeyId: String?,
-            level: Int?,
-            validateCompletess: Boolean?,
-            isCritical: Boolean?
-        ): Validation {
-            return Validation(
-                sourceDate,
-                "string generica",
-                journeyId,
-                level,
-                1,
-                1,
-                validateCompletess,
-                isCritical
-            )
+        fun validation(sourceDate: LocalDateTime?, journeyId: String?, level: Int?, validateCompletess: Boolean?, isCritical: Boolean?, hashValue: String?, hashVersion: Int?): Validation {
+            return Validation(sourceDate,"information", journeyId, level, 1, 1, validateCompletess, isCritical, hashValue, hashVersion)
         }
 
-        fun createRequestPersonTombamentoJourney(personId: String?, tenantId: String?, journeyId: String?): Person {
+        fun createRequestPerson(personId: String?, tenantId: String?, journeyId: String?): Person {
+            val fullName: String = "Felipe T''este  "
+            val birthDate: LocalDate = LocalDate.of(1991, Month.JUNE, 25)
+            val civilStatus: Int = 20
+            val nationalities: MutableList<Int> = mutableListOf(30, 60, 70)
+
+            val addressOne = Address(false, mutableSetOf(1, 3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
+            val addressTwo = Address(false,mutableSetOf(2),null,1001," Av   Paes de Barros"," Mooca    ","03109009","","São Paulo","SP","BR","Financeiro")
+            val addressThree = Address(false,mutableSetOf(3),null,65,"R São PAULO "," Mooca    ","03109009","","São Paulo","SP","BR","Financeiro")
+
+            val phoneOne = Phone(false, 1221, mutableSetOf(2, 3), 55, 11, 998980011, 1, "Financeiro", "Fabio")
+            val phoneTwo = Phone(false, 1221, mutableSetOf(3), 55, 11, 998980022, 2, "Financeiro", "Fabio")
+
+            val patrimony = Patrimony(false,1, BigDecimal.valueOf(20))
+
             return Person(
                 personId,
                 tenantId,
@@ -38,122 +41,81 @@ class PersonFactory {
                 true,
 
                 PersonObject(
-                    "Felipe T''este  ",
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, true)
+                    fullName,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, true, null, null)
                 ),
 
                 PersonObject(
-                    LocalDate.of(1991, Month.JUNE, 24),
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false)
+                    birthDate,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null)
                 ),
 
                 PersonObject(
-                    20,
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false)
+                    civilStatus,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null)
                 ),
 
                 PersonObject(
-                    listOf(50, 30, 60),
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false)
+                    nationalities,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null)
                 ),
 
                 mutableSetOf(
                     PersonAddress(
-                        Address(
-                            false,
-                            mutableSetOf(1, 3),
-                            null,
-                            386,
-                            "R. da  Mooca",
-                            " Mooca",
-                            "03109009",
-                            "",
-                            "São Paulo",
-                            "SP",
-                            "BR",
-                            "Financeiro"
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        null, mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        addressOne,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
+                        null, mutableSetOf(Relationship(tenantId, personId))
                     ),
                     PersonAddress(
-                        Address(
-                            false,
-                            mutableSetOf(2),
-                            null,
-                            1001,
-                            " Av   Paes de Barros",
-                            " Mooca    ",
-                            "03109009",
-                            "",
-                            "São Paulo",
-                            "SP",
-                            "BR",
-                            "Financeiro"
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        null, null,
-                        "",
-                        1
+                        addressTwo,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
+                        null, null
                     ),
                     PersonAddress(
-                        Address(
-                            false,
-                            mutableSetOf(3),
-                            null,
-                            65,
-                            "R São PAULO ",
-                            "Mooca",
-                            "03109009",
-                            "",
-                            "São Paulo",
-                            "SP",
-                            "BR",
-                            "Financeiro"
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        null, mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        addressThree,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
+                        null, mutableSetOf(Relationship(tenantId, personId))
                     )
                 ),
 
                 mutableSetOf(
                     PersonPhone(
-                        Phone(false, 1221, mutableSetOf(2, 3), 55, 11, 998980011, 1, "Financeiro", "Fabio"),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        null, mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        phoneOne,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
+                        null, mutableSetOf(Relationship(tenantId, personId))
                     ),
                     PersonPhone(
-                        Phone(false, 1221, mutableSetOf(3), 55, 11, 998980022, 2, "Financeiro", "Fabio"),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        null, mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        phoneTwo,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
+                        null, mutableSetOf(Relationship(tenantId, personId))
                     )
                 ),
 
                 mutableSetOf(
                     PersonPatrimony(
-                        Patrimony(
-                            false,
-                            1,
-                            BigDecimal.valueOf(20)
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        null,
-                        "",
-                        1
+                        patrimony,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
+                        null
                     )
                 )
             )
         }
 
-        fun createDatabasePersonTombamentoJourney(personId: String?, tenantId: String?, journeyId: String?): Person {
+
+        fun createDatabasePerson(personId: String?, tenantId: String?, journeyId: String?): Person {
+            val fullName: String = " Felipe   Teste"
+            val birthDate: LocalDate = LocalDate.of(1990, Month.APRIL, 24)
+            val civilStatus: Int = 20
+            val nationalities: MutableList<Int> = mutableListOf(30, 60, 70)
+
+            val addressOne = Address(false, mutableSetOf(3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
+            val addressTwo = Address(false,mutableSetOf(1),null,1001," Av   Paes de Barros"," Mooca    ","03109009","","São Paulo","SP","BR","Financeiro")
+
+            val phoneOne = Phone(false, 1221, mutableSetOf(2), 55, 11, 998980033, 3, "Financeiro", "Fabio")
+            val phoneTwo = Phone(false, 1221, mutableSetOf(1), 55, 11, 998980022, 2, "Financeiro", "Fabio")
+
+            val patrimony = Patrimony(false,1, BigDecimal.valueOf(20))
+
             return Person(
                 personId,
                 tenantId,
@@ -162,96 +124,56 @@ class PersonFactory {
                 null,
 
                 PersonObject(
-                    " Felipe   Teste",
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, true)
+                    fullName,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, true, hashFields(fullName).value, 1)
                 ),
 
                 PersonObject(
-                    LocalDate.of(1990, Month.APRIL, 24),
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false)
+                    birthDate,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
                 ),
 
                 PersonObject(
-                    20,
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false)
+                    civilStatus,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
                 ),
 
                 PersonObject(
-                    listOf(30, 60, 70),
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false)
+                    nationalities,
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
                 ),
 
                 mutableSetOf(
                     PersonAddress(
-                        Address(
-                            false,
-                            mutableSetOf(3),
-                            null,
-                            386,
-                            "R. da  Mooca",
-                            " Mooca",
-                            "03109009",
-                            "",
-                            "São Paulo",
-                            "SP",
-                            "BR",
-                            "Financeiro"
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        "aaf857ba-7c79-41b9-948a-eb31a51e861d", mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        addressOne,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressOne).value, 1),
+                        "aaf857ba-7c79-41b9-948a-eb31a51e861d", mutableSetOf(Relationship(tenantId, personId))
                     ),
                     PersonAddress(
-                        Address(
-                            false,
-                            mutableSetOf(1),
-                            null,
-                            1001,
-                            " Av   Paes de Barros",
-                            " Mooca    ",
-                            "03109009",
-                            "",
-                            "São Paulo",
-                            "SP",
-                            "BR",
-                            "Financeiro"
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        "8e6c3786-4c61-4c55-b82e-0ccb43d55919", null,
-                        "",
-                        1
+                        addressTwo,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressTwo).value, 1),
+                        "8e6c3786-4c61-4c55-b82e-0ccb43d55919", null
                     )
                 ),
 
                 mutableSetOf(
                     PersonPhone(
-                        Phone(false, 1221, mutableSetOf(2), 55, 11, 998980033, 3, "Financeiro", "Fabio"),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        "54ec20e2-0c98-4cee-ac60-a358657c80e0", mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        phoneOne,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneOne).value, 1),
+                        "54ec20e2-0c98-4cee-ac60-a358657c80e0", mutableSetOf(Relationship(tenantId, personId))
                     ),
                     PersonPhone(
-                        Phone(false, 1221, mutableSetOf(1), 55, 11, 998980022, 2, "Financeiro", "Fabio"),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        "d8cf287e-596c-4d87-a86d-009a9a01f3d1", mutableSetOf(Relationship(tenantId, personId)),
-                        "",
-                        1
+                        phoneTwo,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneTwo).value, 1),
+                        "d8cf287e-596c-4d87-a86d-009a9a01f3d1", mutableSetOf(Relationship(tenantId, personId))
                     )
                 ),
 
                 mutableSetOf(
                     PersonPatrimony(
-                        Patrimony(
-                            false,
-                            1,
-                            BigDecimal.valueOf(20)
-                        ),
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false),
-                        "f4bcf3c1-0307-4f8f-b95a-0147d2b04942",
-                        "",
-                        1
+                        patrimony,
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPatrimony(patrimony).value, 1),
+                        "f4bcf3c1-0307-4f8f-b95a-0147d2b04942"
                     )
                 )
             )

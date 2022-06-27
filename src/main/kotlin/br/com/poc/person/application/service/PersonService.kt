@@ -378,10 +378,10 @@ fun getIdPatrimony(personPatrimony: PersonPatrimony): String {
     return personPatrimony.id
 }
 
-fun <T> hashFields(vararg values: T?): Hash {
-    val stringToHash = values.asList().joinToString(separator = HASH_LIST_SEPARATOR)
-    return Hash(stringToHash.md5())
-}
+//fun <T> hashFields(vararg values: T?): Hash {
+//    val stringToHash = values.asList().joinToString(separator = HASH_LIST_SEPARATOR)
+//    return Hash(stringToHash.md5())
+//}
 
 fun hashAddress(personAddress: PersonAddress): Hash {
     var address = personAddress.value
