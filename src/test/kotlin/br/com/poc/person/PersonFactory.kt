@@ -4,7 +4,7 @@ import br.com.poc.person.HashGenerator.HashGenerator.hashAddress
 import br.com.poc.person.HashGenerator.HashGenerator.hashFields
 import br.com.poc.person.HashGenerator.HashGenerator.hashPatrimony
 import br.com.poc.person.HashGenerator.HashGenerator.hashPhone
-import br.com.poc.person.application.port.out.model.*
+import br.com.poc.person.application.out.model.*
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -14,6 +14,7 @@ class PersonFactory {
     companion object PersonFactory {
 
         val HASH_VERSION = 1
+
         fun validation(sourceDate: LocalDateTime?, journeyId: String?, level: Int?, validateCompletess: Boolean?, isCritical: Boolean?, hashValue: String?, hashVersion: Int?): Validation {
             return Validation(sourceDate,"information", journeyId, level, 1, 1, validateCompletess, isCritical, hashValue, hashVersion)
         }
@@ -125,7 +126,7 @@ class PersonFactory {
 
                 PersonObject(
                     fullName,
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, true, hashFields(fullName).value, 1)
+                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, true, hashFields(fullName).value, HASH_VERSION)
                 ),
 
                 PersonObject(
@@ -146,12 +147,12 @@ class PersonFactory {
                 mutableSetOf(
                     PersonAddress(
                         addressOne,
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressOne).value, 1),
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressOne).value, HASH_VERSION),
                         "aaf857ba-7c79-41b9-948a-eb31a51e861d", mutableSetOf(Relationship(tenantId, personId))
                     ),
                     PersonAddress(
                         addressTwo,
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressTwo).value, 1),
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressTwo).value, HASH_VERSION),
                         "8e6c3786-4c61-4c55-b82e-0ccb43d55919", null
                     )
                 ),
@@ -159,12 +160,12 @@ class PersonFactory {
                 mutableSetOf(
                     PersonPhone(
                         phoneOne,
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneOne).value, 1),
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneOne).value, HASH_VERSION),
                         "54ec20e2-0c98-4cee-ac60-a358657c80e0", mutableSetOf(Relationship(tenantId, personId))
                     ),
                     PersonPhone(
                         phoneTwo,
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneTwo).value, 1),
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneTwo).value, HASH_VERSION),
                         "d8cf287e-596c-4d87-a86d-009a9a01f3d1", mutableSetOf(Relationship(tenantId, personId))
                     )
                 ),
@@ -172,7 +173,7 @@ class PersonFactory {
                 mutableSetOf(
                     PersonPatrimony(
                         patrimony,
-                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPatrimony(patrimony).value, 1),
+                        validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPatrimony(patrimony).value, HASH_VERSION),
                         "f4bcf3c1-0307-4f8f-b95a-0147d2b04942"
                     )
                 )

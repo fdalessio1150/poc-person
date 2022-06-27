@@ -2,7 +2,7 @@ package br.com.poc.person
 
 import br.com.poc.person.PersonFactory.PersonFactory.createDatabasePerson
 import br.com.poc.person.PersonFactory.PersonFactory.createRequestPerson
-import br.com.poc.person.application.port.out.model.Person
+import br.com.poc.person.application.out.model.Person
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -23,10 +23,5 @@ class PersonApplicationTests {
 
         println(System.nanoTime() - start)
     }
-
-
-
-
-
 
 }
