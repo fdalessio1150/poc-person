@@ -4,24 +4,18 @@ class PersonAddress(
     value: Address,
     validation: Validation,
     val id: String? = null,
-    var relationships: MutableSet<Relationship>? = mutableSetOf(),
-    hashValue: String,
-    hashVersion: Int,
-) : PersonObject<Address>(value, validation, hashValue, hashVersion)
+    var relationships: MutableSet<Relationship>? = mutableSetOf()
+) : PersonObject<Address>(value, validation)
 
 class PersonPhone(
     value: Phone,
     validation: Validation,
     val id: String? = null,
-    var relationships: MutableSet<Relationship>? = mutableSetOf(),
-    hashValue: String,
-    hashVersion: Int,
-) : PersonObject<Phone>(value, validation, hashValue, hashVersion)
+    var relationships: MutableSet<Relationship>? = mutableSetOf()
+) : PersonObject<Phone>(value, validation)
 
 class PersonPatrimony(
     value: Patrimony,
     validation: Validation,
-    val id: String? = null,
-    hashValue: String,
-    hashVersion: Int,
-) : PersonObject<Patrimony>(value, validation, hashValue, hashVersion)
+    val id: String? = null
+) : PersonObject<Patrimony>(value, validation)
