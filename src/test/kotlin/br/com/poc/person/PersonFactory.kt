@@ -20,9 +20,9 @@ class PersonFactory {
         }
 
         fun createRequestPerson(personId: String?, tenantId: String?, journeyId: String?): Person {
-            val fullName: String = "Felipe T''este  "
-            val birthDate: LocalDate = LocalDate.of(1991, Month.JUNE, 25)
-            val civilStatus: Int = 20
+            val fullName = "Felipe T''este  "
+            val birthDate = LocalDate.of(1991, Month.JUNE, 25)
+            val civilStatus = 20
             val nationalities: MutableList<Int> = mutableListOf(30, 60, 70)
 
             val addressOne = Address(false, mutableSetOf(1, 3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
@@ -104,10 +104,10 @@ class PersonFactory {
 
 
         fun createDatabasePerson(personId: String?, tenantId: String?, journeyId: String?): Person {
-            val fullName: String = " Felipe   Teste"
-            val birthDate: LocalDate = LocalDate.of(1990, Month.APRIL, 24)
-            val civilStatus: Int = 20
-            val nationalities: MutableList<Int> = mutableListOf(30, 60, 70)
+            val fullName = " Felipe   Teste"
+            val birthDate = LocalDate.of(1990, Month.APRIL, 24)
+            val civilStatus = 20
+            val nationalities = mutableListOf(30, 60, 70)
 
             val addressOne = Address(false, mutableSetOf(3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
             val addressTwo = Address(false,mutableSetOf(1),null,1001," Av   Paes de Barros"," Mooca    ","03109009","","São Paulo","SP","BR","Financeiro")
