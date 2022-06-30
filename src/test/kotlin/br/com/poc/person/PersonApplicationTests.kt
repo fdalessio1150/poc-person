@@ -1,22 +1,16 @@
 package br.com.poc.person
 
-import br.com.poc.person.PersonFactory.PersonFactory.createDatabasePerson
-import br.com.poc.person.PersonFactory.PersonFactory.createRequestPerson
+import br.com.poc.person.PersonFactoryTest.PersonFactoryTest.createDatabasePerson
+import br.com.poc.person.PersonFactoryTest.PersonFactoryTest.createRequestPerson
 import br.com.poc.person.application.out.model.Person
-import com.google.gson.GsonBuilder
+import br.com.poc.person.application.out.model.PersonAddress
+import br.com.poc.person.application.out.model.PersonPatrimony
+import br.com.poc.person.application.out.model.PersonPhone
+import br.com.poc.person.util.HashGenerator
 import org.junit.jupiter.api.Test
-import java.lang.invoke.LambdaMetafactory
-import java.lang.invoke.MethodHandles
-import java.lang.invoke.MethodType
-import java.lang.reflect.Field
-import java.util.*
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.internal.impl.protobuf.WireFormat.FieldType
-
 
 class PersonApplicationTests {
-
-    val GSON_MAPPER = GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm:ss").create()
 
     @Test
     fun personPoc() {
@@ -26,16 +20,55 @@ class PersonApplicationTests {
         processFields(request, database)
     }
 
+
     fun processFields(person: Person, personFound: Person) {
-        var start = System.nanoTime()
+        var personComplexFieldHm = complexFieldToHashMap(person)
+        var personFoundComplexFieldHm = complexFieldToHashMap(personFound)
 
+        personComplexFieldHm.size
+        personFoundComplexFieldHm.size
+    }
 
+    fun complexFieldToHashMap(obj: Any): HashMap<String, HashMap<String, Any>> {
+        var hmFinal = hashMapOf<String, HashMap<String, Any>>()
 
-        println(System.nanoTime() - start)
+        obj::class.memberProperties.forEach { member ->
+            if (null != member.getter.call(obj) && member.getter.call(obj)!!::class.javaObjectType.simpleName == "ArrayList") {
+                var itemsHm = hashMapOf<String, Any>()
+                var items = (member.getter.call(obj)!! as ArrayList<Any>)
+
+                for (i in 0 until (items.size)) {
+                    if (items[i] is PersonAddress) {
+                        var personAddress = items[i] as PersonAddress
+                        var hash = HashGenerator.hashGeneratorForObject(personAddress.value)
+
+                        personAddress.value.purposes?.forEach { purpose ->
+                            itemsHm.put(purpose.toString() + hash, personAddress)
+                        }
+                    }
+                    if (items[i] is PersonPhone) {
+                        var personPhone = items[i] as PersonPhone
+                        var hash = HashGenerator.hashGeneratorForObject(personPhone.value)
+
+                        personPhone.value.purposes?.forEach { purpose ->
+                            itemsHm.put(purpose.toString() + hash, personPhone)
+                        }
+                    }
+                    if (items[i] is PersonPatrimony) {
+                        var personPatrimony = items[i] as PersonPatrimony
+                        var hash = HashGenerator.hashGeneratorForObject(personPatrimony.value)
+
+                        itemsHm.put(personPatrimony.value.patrimonyType.toString() + hash, personPatrimony)
+                    }
+                }
+                hmFinal.put(member.name, itemsHm)
+            }
+        }
+        return hmFinal
     }
 
 /*
-    // TODO codificar string e gerar de forma generica
+
     fun concacAddressData(addressData: AddressData): HashMap<String, Any> {
         var addresses: HashMap<String, Any> = hashMapOf()
 
@@ -46,7 +79,6 @@ class PersonApplicationTests {
         return addresses
     }
 
-    // TODO codificar string e gerar de forma generica
     fun concacPhoneData(phoneData: PhoneData): HashMap<String, Any>  {
         var phones: HashMap<String, Any> = hashMapOf()
 
@@ -57,7 +89,6 @@ class PersonApplicationTests {
         return phones
     }
 
-    // TODO deixar generico e remover reflection muito lento
     fun createHashKeyForComplexFields(obj: GenericPayload): HashMap<String, Any> {
         var objectToHashMap: HashMap<String, Any> = hashMapOf()
         var objectToHashMapFinal: HashMap<String, Any> = hashMapOf()

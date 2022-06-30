@@ -1,10 +1,10 @@
-package br.com.poc.person
+package br.com.poc.person.util
 
-import br.com.poc.person.HashGenerator.HashGenerator.hashAddress
-import br.com.poc.person.HashGenerator.HashGenerator.hashFields
-import br.com.poc.person.HashGenerator.HashGenerator.hashPatrimony
-import br.com.poc.person.HashGenerator.HashGenerator.hashPhone
 import br.com.poc.person.application.out.model.*
+import br.com.poc.person.util.HashGenerator.HashGenerator.hashAddress
+import br.com.poc.person.util.HashGenerator.HashGenerator.hashFields
+import br.com.poc.person.util.HashGenerator.HashGenerator.hashPatrimony
+import br.com.poc.person.util.HashGenerator.HashGenerator.hashPhone
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -61,7 +61,7 @@ class PersonFactory {
                     validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null)
                 ),
 
-                mutableSetOf(
+                mutableListOf(
                     PersonAddress(
                         addressOne,
                         validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
@@ -79,7 +79,7 @@ class PersonFactory {
                     )
                 ),
 
-                mutableSetOf(
+                mutableListOf(
                     PersonPhone(
                         phoneOne,
                         validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
@@ -92,7 +92,7 @@ class PersonFactory {
                     )
                 ),
 
-                mutableSetOf(
+                mutableListOf(
                     PersonPatrimony(
                         patrimony,
                         validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null),
@@ -101,7 +101,6 @@ class PersonFactory {
                 )
             )
         }
-
 
         fun createDatabasePerson(personId: String?, tenantId: String?, journeyId: String?): Person {
             val fullName = " Felipe   Teste"
@@ -144,7 +143,7 @@ class PersonFactory {
                     validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
                 ),
 
-                mutableSetOf(
+                mutableListOf(
                     PersonAddress(
                         addressOne,
                         validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashAddress(addressOne).value, HASH_VERSION),
@@ -157,7 +156,7 @@ class PersonFactory {
                     )
                 ),
 
-                mutableSetOf(
+                mutableListOf(
                     PersonPhone(
                         phoneOne,
                         validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPhone(phoneOne).value, HASH_VERSION),
@@ -170,7 +169,7 @@ class PersonFactory {
                     )
                 ),
 
-                mutableSetOf(
+                mutableListOf(
                     PersonPatrimony(
                         patrimony,
                         validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, hashPatrimony(patrimony).value, HASH_VERSION),
