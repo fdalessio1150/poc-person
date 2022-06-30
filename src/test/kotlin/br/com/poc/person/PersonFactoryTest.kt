@@ -22,7 +22,7 @@ class PersonFactoryTest {
         fun createRequestPerson(personId: String?, tenantId: String?, journeyId: String?): Person {
             val fullName = "Felipe T''este  "
             val birthDate = LocalDate.of(1991, Month.JUNE, 25)
-            val civilStatus = 20
+            //val civilStatus = 20
             val nationalities: MutableList<Int> = mutableListOf(30, 60, 70)
 
             val addressOne = Address(false, mutableSetOf(1, 3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
@@ -51,10 +51,7 @@ class PersonFactoryTest {
                     validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null)
                 ),
 
-                PersonObject(
-                    civilStatus,
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false,  null, null)
-                ),
+                null,
 
                 PersonObject(
                     nationalities,
@@ -106,7 +103,7 @@ class PersonFactoryTest {
             val fullName = " Felipe   Teste"
             val birthDate = LocalDate.of(1990, Month.APRIL, 24)
             val civilStatus = 20
-            val nationalities = mutableListOf(30, 60, 70)
+            val nationalities = mutableListOf(30, 60, 80, 70)
 
             val addressOne = Address(false, mutableSetOf(3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
             val addressTwo = Address(false,mutableSetOf(1),null,1001," Av   Paes de Barros"," Mooca    ","03109009","","São Paulo","SP","BR","Financeiro")
@@ -140,7 +137,7 @@ class PersonFactoryTest {
 
                 PersonObject(
                     nationalities,
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
+                    validation(LocalDateTime.of(2021, Month.APRIL, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
                 ),
 
                 mutableListOf(
