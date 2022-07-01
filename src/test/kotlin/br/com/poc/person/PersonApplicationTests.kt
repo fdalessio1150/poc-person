@@ -9,11 +9,12 @@ import kotlin.reflect.full.memberProperties
 
 class PersonApplicationTests {
 
-    val UPDATE_PERSON = "update"
-    val OPEN_DIFF_PERSON = "openDiff"
-    val CLOSE_DIFF_PERSON = "closeDiff"
-    val ADDRESS_UNIQUE_PURPOSE = hashMapOf<Int, String>(1 to "Residencial", 2 to "Comercial", 5 to "Cartão CNPJ")
-    val PHONE_UNIQUE_PURPOSE = hashMapOf<Int, String>(1 to "Pessoal", 2 to "Residencial", 3 to "Comercial", 5 to "Cartão CNPJ")
+    private val updatePerson = "update"
+    private val openDiffPerson = "openDiff"
+    private val closeDiffPerson = "closeDiff"
+    private val addressUniquePurpose = hashMapOf<Int, String>(1 to "Residencial", 2 to "Comercial", 5 to "Cartão CNPJ")
+    private val phoneUniquePurpose =
+        hashMapOf<Int, String>(1 to "Pessoal", 2 to "Residencial", 3 to "Comercial", 5 to "Cartão CNPJ")
 
     @Test
     fun personPoc() {
@@ -38,18 +39,22 @@ class PersonApplicationTests {
 
             if (requestField::class.javaObjectType.simpleName != "HashMap" && (requestField is PersonObject<*> && databaseField is PersonObject<*>)) {
                 hm = processSimpleField(requestField, databaseField, requestPerson)
-            } else if (requestField::class.javaObjectType.simpleName == "HashMap" && (requestField is HashMap<*, *> && databaseField is HashMap<*, *>)){
-                hm = processComplexField(requestField as HashMap<String, Any>, databaseField as HashMap<String, Any>, requestPerson)
+            } else if (requestField::class.javaObjectType.simpleName == "HashMap" && (requestField is HashMap<*, *> && databaseField is HashMap<*, *>)) {
+                hm = processComplexField(
+                    requestField as HashMap<String, Any>,
+                    databaseField as HashMap<String, Any>,
+                    requestPerson
+                )
             }
 
             hm.entries.forEach { (action, obj) ->
-                if (action == UPDATE_PERSON) {
+                if (action == updatePerson) {
                     personFinal[k] = obj
                 }
-                if (action == CLOSE_DIFF_PERSON) {
+                if (action == closeDiffPerson) {
                     personCloseDiff[k] = obj
                 }
-                if (action == OPEN_DIFF_PERSON) {
+                if (action == openDiffPerson) {
                     personOpenDiff[k] = obj
                 }
             }
@@ -74,19 +79,27 @@ class PersonApplicationTests {
         var a = "teste"
     }
 
-    private fun processSimpleField(requestField: PersonObject<*>, databaseField: PersonObject<*>, requestPerson: Person): HashMap<String, Any> {
+    private fun processSimpleField(
+        requestField: PersonObject<*>,
+        databaseField: PersonObject<*>,
+        requestPerson: Person
+    ): HashMap<String, Any> {
         var hm = hashMapOf<String, Any>()
 
         if (requestPerson.isTombamento == true && requestPerson.isCompleteness == false) {
             hm = processSimpleFieldTombamento(requestField, databaseField)
         } else if (requestPerson.isTombamento == false && requestPerson.isCompleteness == true) {
-            hm =  processSimpleFieldOnline(requestField, databaseField)
+            hm = processSimpleFieldOnline(requestField, databaseField)
         }
 
         return hm
     }
 
-    private fun processComplexField(requestField: HashMap<String, Any>, databaseField: HashMap<String, Any>, requestPerson: Person): HashMap<String, Any> {
+    private fun processComplexField(
+        requestField: HashMap<String, Any>,
+        databaseField: HashMap<String, Any>,
+        requestPerson: Person
+    ): HashMap<String, Any> {
         var hm = hashMapOf<String, Any>()
 /*
         if (requestPerson.isTombamento == true && requestPerson.isCompleteness == false) {
@@ -133,7 +146,10 @@ class PersonApplicationTests {
         return hashMapOf()
     }
 
-    private fun processSimpleFieldTombamento(requestField: PersonObject<*>, databaseField: PersonObject<*>): HashMap<String, Any> {
+    private fun processSimpleFieldTombamento(
+        requestField: PersonObject<*>,
+        databaseField: PersonObject<*>
+    ): HashMap<String, Any> {
         val hm = hashMapOf<String, Any>()
         val isFieldEqual = compareSimpleField(requestField.value, databaseField.value)
 
@@ -142,24 +158,33 @@ class PersonApplicationTests {
 
             databaseField.validation = validation
 
-            hm[UPDATE_PERSON] = databaseField // esta igual mas nao podemos considerar o que veio da request
-            hm[CLOSE_DIFF_PERSON] = databaseField // esta igual mas nao podemos considerar o que veio da request
+            hm[updatePerson] = databaseField // esta igual mas nao podemos considerar o que veio da request
+            hm[closeDiffPerson] = databaseField // esta igual mas nao podemos considerar o que veio da request
         } else {
-            hm[UPDATE_PERSON] = databaseField // manter o database pois esta diferente
-            hm[OPEN_DIFF_PERSON] = requestField // abrir diff passando a request
+            hm[updatePerson] = databaseField // manter o database pois esta diferente
+            hm[openDiffPerson] = requestField // abrir diff passando a request
         }
         return hm
     }
 
-    private fun processSimpleFieldOnline(requestField: PersonObject<*>, databaseField: PersonObject<*>): HashMap<String, Any> {
+    private fun processSimpleFieldOnline(
+        requestField: PersonObject<*>,
+        databaseField: PersonObject<*>
+    ): HashMap<String, Any> {
         //TODO
         return hashMapOf()
     }
 
-    private fun increaseCompletudeValidation(requestFieldValidation: Validation?, databaseFieldValidation: Validation?): Validation {
+    private fun increaseCompletudeValidation(
+        requestFieldValidation: Validation?,
+        databaseFieldValidation: Validation?
+    ): Validation {
         return if (requestFieldValidation?.level!! > databaseFieldValidation?.level!!) {
             requestFieldValidation
-        } else if ((requestFieldValidation?.level!! == databaseFieldValidation?.level!!) && requestFieldValidation?.sourceDate!!.isAfter(databaseFieldValidation?.sourceDate!!)) {
+        } else if ((requestFieldValidation?.level!! == databaseFieldValidation?.level!!) && requestFieldValidation?.sourceDate!!.isAfter(
+                databaseFieldValidation?.sourceDate!!
+            )
+        ) {
             requestFieldValidation
         } else if (requestFieldValidation?.sourceDate!!.isAfter(databaseFieldValidation?.sourceDate!!)) {
             databaseFieldValidation.sourceDate = requestFieldValidation.sourceDate
