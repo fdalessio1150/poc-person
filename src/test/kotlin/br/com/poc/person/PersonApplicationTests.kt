@@ -84,15 +84,15 @@ class PersonApplicationTests {
         databaseField: PersonObject<*>,
         requestPerson: Person
     ): HashMap<String, Any> {
-        var hm = hashMapOf<String, Any>()
+        var hashMap = hashMapOf<String, Any>()
 
         if (requestPerson.isTombamento == true && requestPerson.isCompleteness == false) {
-            hm = processSimpleFieldTombamento(requestField, databaseField)
+            hashMap = processSimpleFieldTombamento(requestField, databaseField)
         } else if (requestPerson.isTombamento == false && requestPerson.isCompleteness == true) {
-            hm = processSimpleFieldOnline(requestField, databaseField)
+            hashMap = processSimpleFieldOnline(requestField, databaseField)
         }
 
-        return hm
+        return hashMap
     }
 
     private fun processComplexField(
@@ -150,7 +150,8 @@ class PersonApplicationTests {
         requestField: PersonObject<*>,
         databaseField: PersonObject<*>
     ): HashMap<String, Any> {
-        val hm = hashMapOf<String, Any>()
+
+        val hashMap = hashMapOf<String, Any>()
         val isFieldEqual = compareSimpleField(requestField.value, databaseField.value)
 
         if (isFieldEqual) {
@@ -158,13 +159,13 @@ class PersonApplicationTests {
 
             databaseField.validation = validation
 
-            hm[updatePerson] = databaseField // esta igual mas nao podemos considerar o que veio da request
-            hm[closeDiffPerson] = databaseField // esta igual mas nao podemos considerar o que veio da request
+            hashMap[updatePerson] = databaseField // esta igual mas nao podemos considerar o que veio da request
+            hashMap[closeDiffPerson] = databaseField // esta igual mas nao podemos considerar o que veio da request
         } else {
-            hm[updatePerson] = databaseField // manter o database pois esta diferente
-            hm[openDiffPerson] = requestField // abrir diff passando a request
+            hashMap[updatePerson] = databaseField // manter o database pois esta diferente
+            hashMap[openDiffPerson] = requestField // abrir diff passando a request
         }
-        return hm
+        return hashMap
     }
 
     private fun processSimpleFieldOnline(
@@ -194,7 +195,10 @@ class PersonApplicationTests {
         }
     }
 
-    private fun compareSimpleField(requestFieldValue: Any?, databaseFieldValue: Any?): Boolean {
+    /**
+     * Compare if two simple fields have the same value or not
+     */
+    fun compareSimpleField(requestFieldValue: Any?, databaseFieldValue: Any?): Boolean {
         val objectType = requestFieldValue!!::class.javaObjectType.simpleName
 
         return if (objectType == "ArrayList") {
@@ -212,52 +216,73 @@ class PersonApplicationTests {
         obj::class.memberProperties.forEach { member ->
             var memberObject = member.getter.call(obj)
 
-            if (null != memberObject && memberObject!!::class.javaObjectType.simpleName == "ArrayList") {
+            if (memberObject != null && memberObject!!::class.javaObjectType.simpleName == "ArrayList") {
+
                 var itemsHm = hashMapOf<String, Any>()
                 var items = (member.getter.call(obj)!! as ArrayList<Any>)
 
-                // os ifs podem ser metodos separados?
                 for (i in 0 until (items.size)) {
-                    if (items[i] is PersonAddress) {
-                        var personAddress = items[i] as PersonAddress
-                        var hash = HashGenerator.hashGeneratorForObject(personAddress.value)
-
-                        // setando mesmo objeto..?
-                        personAddress.value.purposes?.forEach { purpose ->
-                            itemsHm.put(purpose.toString() + "|" + hash, personAddress)
-                        }
-                    }
-
-                    if (items[i] is PersonPhone) {
-                        var personPhone = items[i] as PersonPhone
-                        var hash = HashGenerator.hashGeneratorForObject(personPhone.value)
-
-                        personPhone.value.purposes?.forEach { purpose ->
-                            itemsHm.put(purpose.toString() + "|" + hash, personPhone)
-                        }
-                    }
-
-                    if (items[i] is PersonPatrimony) {
-                        var personPatrimony = items[i] as PersonPatrimony
-                        var hash = HashGenerator.hashGeneratorForObject(personPatrimony.value)
-
-                        itemsHm.put(personPatrimony.value.patrimonyType.toString() + "|" + hash, personPatrimony)
-                    }
+                    itemsHm = addressHashProcessor(items, i)
+                    itemsHm = phoneHashProcessor(items, i)
+                    itemsHm = patrimonyHashProcessor(items, i)
                 }
+                hmFinal[member.name] = itemsHm
 
-                hmFinal.put(member.name, itemsHm)
             } else {
                 if (null != member.getter.call(obj))
-                    hmFinal.put(member.name, member.getter.call(obj)!!)
+                    hmFinal[member.name] = member.getter.call(obj)!!
             }
         }
         return hmFinal
     }
 
+    fun addressHashProcessor(items: ArrayList<Any>, i: Int): HashMap<String, Any> {
+
+        var itemsHm = hashMapOf<String, Any>()
+        if (items[i] is PersonAddress) {
+            var personAddress = items[i] as PersonAddress
+            var hash = HashGenerator.hashGeneratorForObject(personAddress.value)
+
+
+            // setando mesmo objeto..?
+            personAddress.value.purposes?.forEach { purpose ->
+                itemsHm.put(purpose.toString() + "|" + hash, personAddress)
+            }
+            return itemsHm
+        }
+        return itemsHm
+    }
+
+
+    fun phoneHashProcessor(items: ArrayList<Any>, i: Int): HashMap<String, Any> {
+
+        var itemsHm = hashMapOf<String, Any>()
+        if (items[i] is PersonPhone) {
+            var personPhone = items[i] as PersonPhone
+            var hash = HashGenerator.hashGeneratorForObject(personPhone.value)
+
+            personPhone.value.purposes?.forEach { purpose ->
+                itemsHm.put(purpose.toString() + "|" + hash, personPhone)
+            }
+            return itemsHm
+        }
+        return itemsHm
+    }
+
+    fun patrimonyHashProcessor(items: ArrayList<Any>, i: Int): HashMap<String, Any> {
+
+        var itemsHm = hashMapOf<String, Any>()
+        if (items[i] is PersonPatrimony) {
+            var personPatrimony = items[i] as PersonPatrimony
+            var hash = HashGenerator.hashGeneratorForObject(personPatrimony.value)
+
+            itemsHm.put(personPatrimony.value.patrimonyType.toString() + "|" + hash, personPatrimony)
+            return itemsHm
+        }
+        return itemsHm
+    }
+
 /*
-
-
-
     fun processFields(person: Person, personFound: Person) {
         var personInHm = toHashMap(person)
         var personFoundHm = toHashMap(personFound)
