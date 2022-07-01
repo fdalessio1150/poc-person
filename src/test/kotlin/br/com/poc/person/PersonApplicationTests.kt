@@ -48,14 +48,11 @@ class PersonApplicationTests {
             }
 
             hm.entries.forEach { (action, obj) ->
-                if (action == updatePerson) {
-                    personFinal[k] = obj
-                }
-                if (action == closeDiffPerson) {
-                    personCloseDiff[k] = obj
-                }
-                if (action == openDiffPerson) {
-                    personOpenDiff[k] = obj
+                when (action) {
+                    updatePerson -> personFinal[k] = obj
+                    closeDiffPerson -> personCloseDiff[k] = obj
+                    openDiffPerson -> personOpenDiff[k] = obj
+                    else -> throw NotImplementedError("Action not implemented: $action")
                 }
             }
         }
