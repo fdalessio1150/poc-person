@@ -1,0 +1,141 @@
+
+request
+chave: 1 | rua oratorio, valor: rua oratorio [1]
+chave: 3 | rua oratorio, valor: rua oratorio [3]
+chave: 3 | rua da mooca, valor: rua da mooca [3]
+chave: 2 | fernando falcao, valor: fernando falcap [2]
+
+unicos
+chave: 1, valor: rua da mooca 
+chave: 2, valor: av paes de barros
+
+database
+chave: rua da mooca, valor: rua da mooca [3]
+chave: rua bixira, valor:  rua bixira [3]
+chave: av paes de barros, valor: av paes de barros [2, 3]
+chave: rua oratorio, valor: av paes de barros [1, 3]
+
+
+tombamento?
+	é unico?
+		sim
+			buscar pela chave da request nos unicos
+			encontrou?
+				não
+					buscar apenas pelo proposito nos unicos
+					encontrou?
+						sim
+							guardar id multiplo para abertura de diff = DATABASE
+							buscar pelo hash no database
+							encontrou?
+								sim
+									pegar o objeto do database
+									adicionar o proposito outros
+									verificar se é possivel melhorar completude request x database
+									salvar de volta no database
+									marcar para ABERTURA DE DIFF entre ID que foi gerado x o ID encontrado acima
+								não
+									pegar objeto da request
+									trocar o proposito para outros
+									gerar id do multiplo
+									salvar de volta no database
+									marcar para ABERTURA DE DIFF entre ID que foi gerado x o ID gerado
+						não
+							buscar pelo hash no database
+							encontrou?
+								sim
+									pegar o objeto do database
+									adicionar o proposito unico
+									verificar se é possivel melhorar completude request x database
+									salvar de volta no database
+									salvar nos unicos
+									marcar para FECHAMENTO DE DIFF o id multiplo
+								não
+									pegar objeto da request
+									gerar id do multiplo
+									salvar de volta no database
+									salvar nos unicos
+									marcar para FECHAMENTO DE DIFF o id multiplo								
+				sim
+					pegar o objeto do database
+					verificar se é possivel melhorar completude request x database
+					salvar de volta no database
+					salvar de volta nos unicos
+					marcar para FECHAMENTO DE DIFF o id multiplo
+		não
+			buscar pelo hash no database
+			encontrou?
+				sim
+					pegar objeto do database
+					adicionar o proposito outros
+					verificar se é possível melhorar a completude request x database
+					salvar de volta no database
+				não
+					pegar o objeto da request
+					gerar id do multiplo
+					salvar de volta no database
+
+online?
+	é unico?
+		sim
+			buscar pela chave da request nos unicos
+			encontrou?
+				não
+					buscar apenas pelo proposito nos unicos
+					encontrou?
+						sim
+							guardar id multiplo para abertura de diff = DATABASE
+							completude da request é maior?
+								sim
+									remover o que existe dos unicos
+									remover do database o proposito unico existente
+									buscar pelo hash no database
+									encontrou?
+										sim
+											pegar o objeto do database
+											adicionar o proposito unico
+											salvar de volta no database
+											salvar de volta nos unicos
+											marcar para FECHAMENTO DE DIFF o id multiplo
+										não
+											pegar o objeto da request
+											gerar id do multiplo
+											salvar de volta no database
+											salvar de volta nos unicos
+											marcar para FECHAMENTO DE DIFF o id multiplo
+								não
+									buscar pelo hash no database
+									encontrou?
+										sim
+											pegar objeto da request
+											trocar o proposito para outros
+											gerar id do multiplo
+											salvar de volta no database
+											marcar para ABERTURA DE DIFF entre ID que foi gerado x o ID encontrado acima
+										não
+											pegar objeto da request
+											trocar o proposito para outros
+											gerar id do multiplo
+											salvar de volta no database
+											marcar para ABERTURA DE DIFF entre ID que foi gerado x o ID gerado
+						não
+							buscar pelo hash no database
+							encontrou?
+								sim
+									pegar o objeto do database
+									adicionar proposito unico
+									verificar se é possivel melhorar completude request x database
+									salvar de volta no database
+									salvar nos unicos
+									marcar para FECHAMENTO DE DIFF o id multiplo
+								não
+									pegar o objeto da request
+									salvar de volta no database
+									salvar nos unicos
+									marcar para FECHAMENTO DE DIFF o id multiplo
+				sim
+					pegar o objeto do database
+					verificar se é possivel melhorar completude request x database
+					salvar de volta no database
+					salvar de volta nos unicos
+					marcar para FECHAMENTO DE DIFF o id multiplo
