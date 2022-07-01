@@ -102,7 +102,7 @@ class PersonFactoryTest {
         fun createDatabasePerson(personId: String?, tenantId: String?, journeyId: String?): Person {
             val fullName = " Felipe   Teste"
             val birthDate = LocalDate.of(1990, Month.APRIL, 24)
-            val civilStatus = 20
+            //val civilStatus = 20
             val nationalities = mutableListOf(30, 60, 80, 70)
 
             val addressOne = Address(false, mutableSetOf(3),null,386,"R. da  Mooca"," Mooca","03109009","","São Paulo","SP","BR","Financeiro")
@@ -130,10 +130,7 @@ class PersonFactoryTest {
                     validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
                 ),
 
-                PersonObject(
-                    civilStatus,
-                    validation(LocalDateTime.of(2022, Month.JUNE, 24, 22, 0, 10), journeyId, 200, true, false, null, null)
-                ),
+                null,
 
                 PersonObject(
                     nationalities,

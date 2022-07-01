@@ -9,37 +9,258 @@ import kotlin.reflect.full.memberProperties
 
 class PersonApplicationTests {
 
+    val UPDATE_PERSON = "update"
+    val OPEN_DIFF_PERSON = "openDiff"
+    val CLOSE_DIFF_PERSON = "closeDiff"
+    val ADDRESS_UNIQUE_PURPOSE = hashMapOf<Int, String>(1 to "Residencial", 2 to "Comercial", 5 to "Cartão CNPJ")
+    val PHONE_UNIQUE_PURPOSE = hashMapOf<Int, String>(1 to "Pessoal", 2 to "Residencial", 3 to "Comercial", 5 to "Cartão CNPJ")
+
     @Test
     fun personPoc() {
         var request: Person = createRequestPerson("1", "1", "2")
         var database: Person = createDatabasePerson("1", "1", "1")
 
-        processFields(request, database)
+        processFieldsv2(request, database)
     }
+
+    fun processFieldsv2(requestPerson: Person, databasePerson: Person) {
+        val requestPersonHm = toHashMap(requestPerson)
+        val databasePersonHm = toHashMap(databasePerson)
+
+        var personFinal = hashMapOf<String, Any>()
+        var personOpenDiff = hashMapOf<String, Any>()
+        var personCloseDiff = hashMapOf<String, Any>()
+
+        // processo apenas o que esta igual
+        requestPersonHm.entries.forEach { (k, requestField) ->
+            val databaseField = databasePersonHm[k]
+            var hm = hashMapOf<String, Any>()
+
+            if (requestField::class.javaObjectType.simpleName != "HashMap" && (requestField is PersonObject<*> && databaseField is PersonObject<*>)) {
+                hm = processSimpleField(requestField, databaseField, requestPerson)
+            } else if (requestField::class.javaObjectType.simpleName == "HashMap" && (requestField is HashMap<*, *> && databaseField is HashMap<*, *>)){
+                hm = processComplexField(requestField as HashMap<String, Any>, databaseField as HashMap<String, Any>, requestPerson)
+            }
+
+            hm.entries.forEach { (action, obj) ->
+                if (action == UPDATE_PERSON) {
+                    personFinal[k] = obj
+                }
+                if (action == CLOSE_DIFF_PERSON) {
+                    personCloseDiff[k] = obj
+                }
+                if (action == OPEN_DIFF_PERSON) {
+                    personOpenDiff[k] = obj
+                }
+            }
+        }
+
+        // processo o restante dos campos para montar o objeto final
+        requestPerson::class.memberProperties.forEach { field ->
+            var requestField = requestPersonHm[field.name]
+            var databaseField = databasePersonHm[field.name]
+
+            if (requestField == null && databaseField == null) {
+                personFinal[field.name] = field
+            }
+            if (requestField != null && databaseField == null) {
+                personFinal[field.name] = requestField
+            }
+            if (requestField == null && databaseField != null) {
+                personFinal[field.name] = databaseField
+            }
+        }
+
+        var a = "teste"
+    }
+
+    private fun processSimpleField(requestField: PersonObject<*>, databaseField: PersonObject<*>, requestPerson: Person): HashMap<String, Any> {
+        var hm = hashMapOf<String, Any>()
+
+        if (requestPerson.isTombamento == true && requestPerson.isCompleteness == false) {
+            hm = processSimpleFieldTombamento(requestField, databaseField)
+        } else if (requestPerson.isTombamento == false && requestPerson.isCompleteness == true) {
+            hm =  processSimpleFieldOnline(requestField, databaseField)
+        }
+
+        return hm
+    }
+
+    private fun processComplexField(requestField: HashMap<String, Any>, databaseField: HashMap<String, Any>, requestPerson: Person): HashMap<String, Any> {
+        var hm = hashMapOf<String, Any>()
+/*
+        if (requestPerson.isTombamento == true && requestPerson.isCompleteness == false) {
+            requestField.entries.forEach { (k, v) ->
+                val purpose = k.split("|").first().toInt()
+                val hash = k.split("|").last()
+
+                if (v is PersonAddress) {
+                    // proposito nao unico
+                    if (ADDRESS_UNIQUE_PURPOSE[purpose] == null) {
+                        // campos nao sao iguais
+                        if (databaseField[k] == null) {
+                            // busca em outro card no hashmap por valor
+                            if (databaseFieldByValue[k] == null) {
+                                // so adicionar
+                            } else {
+                                // reaproveitar o id do card existente e inserir
+                            }
+                        } else {
+                            // card ja existe
+                        }
+                    // proposito unico
+                    } else {
+                        // busca pela chave
+                        if (databaseField[k] == null) {
+                            // busca pelo proposito
+                            databaseField.entries.forEach { (databaseKey, databaseValue) ->
+                                // se encontrar o proposito unico
+                                if (databaseKey.contains(purpose.toString())) {
+                                    v.value.purposes?.remove(purpose) // removo o proposito unico da request pois e um tombamento e ja existe na base
+
+                                }
+                            }
+
+                        } else {
+                            // card ja existe
+                        }
+                    }
+                }
+
+            }
+        }
+*/
+        return hashMapOf()
+    }
+
+    private fun processSimpleFieldTombamento(requestField: PersonObject<*>, databaseField: PersonObject<*>): HashMap<String, Any> {
+        val hm = hashMapOf<String, Any>()
+        val isFieldEqual = compareSimpleField(requestField.value, databaseField.value)
+
+        if (isFieldEqual) {
+            val validation = increaseCompletudeValidation(requestField.validation, databaseField.validation)
+
+            databaseField.validation = validation
+
+            hm[UPDATE_PERSON] = databaseField // esta igual mas nao podemos considerar o que veio da request
+            hm[CLOSE_DIFF_PERSON] = databaseField // esta igual mas nao podemos considerar o que veio da request
+        } else {
+            hm[UPDATE_PERSON] = databaseField // manter o database pois esta diferente
+            hm[OPEN_DIFF_PERSON] = requestField // abrir diff passando a request
+        }
+        return hm
+    }
+
+    private fun processSimpleFieldOnline(requestField: PersonObject<*>, databaseField: PersonObject<*>): HashMap<String, Any> {
+        //TODO
+        return hashMapOf()
+    }
+
+    private fun increaseCompletudeValidation(requestFieldValidation: Validation?, databaseFieldValidation: Validation?): Validation {
+        return if (requestFieldValidation?.level!! > databaseFieldValidation?.level!!) {
+            requestFieldValidation
+        } else if ((requestFieldValidation?.level!! == databaseFieldValidation?.level!!) && requestFieldValidation?.sourceDate!!.isAfter(databaseFieldValidation?.sourceDate!!)) {
+            requestFieldValidation
+        } else if (requestFieldValidation?.sourceDate!!.isAfter(databaseFieldValidation?.sourceDate!!)) {
+            databaseFieldValidation.sourceDate = requestFieldValidation.sourceDate
+            databaseFieldValidation
+        } else {
+            databaseFieldValidation
+        }
+    }
+
+    private fun compareSimpleField(requestFieldValue: Any?, databaseFieldValue: Any?): Boolean {
+        val objectType = requestFieldValue!!::class.javaObjectType.simpleName
+
+        return if (objectType == "ArrayList") {
+            val requestArray = requestFieldValue as ArrayList<*>
+            val databaseArray = databaseFieldValue as ArrayList<*>
+
+            databaseArray.containsAll(requestArray)
+        } else // chamar a limpeza de strings para comparar
+            requestFieldValue.toString() == databaseFieldValue.toString()
+    }
+
+    fun toHashMap(obj: Any): HashMap<String, Any> {
+        var hmFinal = hashMapOf<String, Any>()
+
+        obj::class.memberProperties.forEach { member ->
+            var memberObject = member.getter.call(obj)
+
+            if (null != memberObject && memberObject!!::class.javaObjectType.simpleName == "ArrayList") {
+                var itemsHm = hashMapOf<String, Any>()
+                var items = (member.getter.call(obj)!! as ArrayList<Any>)
+
+                // os ifs podem ser metodos separados?
+                for (i in 0 until (items.size)) {
+                    if (items[i] is PersonAddress) {
+                        var personAddress = items[i] as PersonAddress
+                        var hash = HashGenerator.hashGeneratorForObject(personAddress.value)
+
+                        // setando mesmo objeto..?
+                        personAddress.value.purposes?.forEach { purpose ->
+                            itemsHm.put(purpose.toString() + "|" + hash, personAddress)
+                        }
+                    }
+
+                    if (items[i] is PersonPhone) {
+                        var personPhone = items[i] as PersonPhone
+                        var hash = HashGenerator.hashGeneratorForObject(personPhone.value)
+
+                        personPhone.value.purposes?.forEach { purpose ->
+                            itemsHm.put(purpose.toString() + "|" + hash, personPhone)
+                        }
+                    }
+
+                    if (items[i] is PersonPatrimony) {
+                        var personPatrimony = items[i] as PersonPatrimony
+                        var hash = HashGenerator.hashGeneratorForObject(personPatrimony.value)
+
+                        itemsHm.put(personPatrimony.value.patrimonyType.toString() + "|" + hash, personPatrimony)
+                    }
+                }
+
+                hmFinal.put(member.name, itemsHm)
+            } else {
+                if (null != member.getter.call(obj))
+                    hmFinal.put(member.name, member.getter.call(obj)!!)
+            }
+        }
+        return hmFinal
+    }
+
+/*
+
 
 
     fun processFields(person: Person, personFound: Person) {
         var personInHm = toHashMap(person)
         var personFoundHm = toHashMap(personFound)
 
+
         var updateHm = HashMap<String, Any>()
         var openDiffHm = mutableSetOf<PersonObject<Any>>()
         var closeDiffHm = mutableSetOf<PersonObject<Any>>()
+
+
 
         person::class.memberProperties.forEach { field ->
             var fieldIn = personInHm.get(field.name)
             var fieldFound = personFoundHm.get(field.name)
 
+            if (fieldIn == null && fieldFound == null) {
+                updateHm.put(field.name, field)
+            // Verificar campo critico
             // Existe na request, mas nao existe no database
-            if (fieldIn != null && fieldFound == null) {
+            } else if (fieldIn != null && fieldFound == null) {
                 updateHm.put(field.name, fieldIn)
             // Nao existe na request, mas existe no database
             } else if (fieldIn == null && fieldFound != null) {
                 updateHm.put(field.name, fieldFound)
             // Encontrou na request e no banco de dados, portanto avaliar o que gera diff para campos simples
             } else if (fieldIn!!::class.javaObjectType.simpleName != "HashMap" && fieldIn is PersonObject<*>) {
-                var a = processSimpleField(fieldIn, fieldFound as PersonObject<*>, person)
-                println(a)
+                processSimpleField(fieldIn, fieldFound as PersonObject<*>, person)
+
             // Encontrou na request e no banco de dados, portanto avaliar o que gera diff para campos complexos
             } else if (fieldIn!!::class.javaObjectType.simpleName == "HashMap"){
                 compareComplexField(fieldIn as HashMap<String, Any>, fieldFound as HashMap<String, Any>, person)
@@ -60,109 +281,33 @@ class PersonApplicationTests {
         var isFieldEqual = compareSimpleField(fieldInValue, fieldFoundValue)
 
         if (person.isTombamento == true && person.isCompleteness == false) {
-            if (!isFieldEqual) {
-                return Triple("", fieldIn!!, "")
-            } else {
-                // Verificar campo critico
+            if (isFieldEqual) {
+                // cenario onde é igual porem eu nao posso acatar o que o cliente enviou
                 var validation = increaseCompletudeValidation(fieldIn.validation, fieldFound.validation)
 
                 fieldFound.validation = validation
 
                 return Triple(fieldFound, "", fieldFound)
-            }
-        } else if (person.isTombamento == false && person.isCompleteness == true) {
-            if (!isFieldEqual) {
-                // TODO
             } else {
-                // Verificar campo critico e corrigir quando temos um array pois precisamos mesclar os dados
+                return Triple(fieldFound, fieldIn, "")
+            }
+        }
+        if (person.isTombamento == false && person.isCompleteness == true) {
+            if (isFieldEqual) {
+                // corrigir quando temos um array pois precisamos mesclar os dados
+                // cenario onde é igual porem eu preciso manter o que o cliente enviou
                 var validation = increaseCompletudeValidation(fieldIn.validation, fieldFound.validation)
 
                 fieldIn.validation = validation
 
                 return Triple(fieldIn, "", fieldIn)
+            } else {
+                // TODO
             }
         }
         // Cenario nao suportado
         return Triple("", "", "")
     }
-
-    private fun increaseCompletudeValidation(validationIn: Validation?, validationFound: Validation?): Validation {
-        if (validationIn?.level!! > validationFound?.level!!) {
-            return validationIn
-        } else if (validationIn?.level!! == validationFound?.level!! && validationIn?.sourceDate!!.isAfter(validationFound?.sourceDate!!)) {
-            return validationIn
-        } else if (validationIn?.sourceDate!!.isAfter(validationFound?.sourceDate!!)) {
-            validationFound.sourceDate = validationIn.sourceDate
-            return validationFound
-        } else {
-            return validationFound
-        }
-    }
-
-    private fun compareSimpleField(fieldInValue: Any?, fieldFoundValue: Any?): Boolean {
-        var objectType = fieldInValue!!::class.javaObjectType.simpleName
-
-        if (objectType == "ArrayList") {
-            var arrayA = fieldInValue as ArrayList<*>
-            var arrayB = fieldFoundValue as ArrayList<*>
-
-            return arrayB.containsAll(arrayA)
-        } else // chamar a limpeza de strings para comparar
-            return fieldInValue.toString() == fieldFoundValue.toString()
-    }
-
-    private fun compareComplexField(hashMap: HashMap<String, Any>, hashMap1: HashMap<String, Any>, person: Person) {
-        //TODO processar campos complexos
-    }
-
-    fun toHashMap(obj: Any): HashMap<String, Any> {
-        var hmFinal = hashMapOf<String, Any>()
-
-        obj::class.memberProperties.forEach { member ->
-            var memberObject = member.getter.call(obj)
-
-            if (null != memberObject && memberObject!!::class.javaObjectType.simpleName == "ArrayList") {
-                var itemsHm = hashMapOf<String, Any>()
-                var items = (member.getter.call(obj)!! as ArrayList<Any>)
-
-                // os ifs podem ser metodos separados?
-                for (i in 0 until (items.size)) {
-                    if (items[i] is PersonAddress) {
-                        var personAddress = items[i] as PersonAddress
-                        var hash = HashGenerator.hashGeneratorForObject(personAddress.value)
-
-                        personAddress.value.purposes?.forEach { purpose ->
-                            itemsHm.put(purpose.toString() + hash, personAddress)
-                        }
-                    }
-
-                    if (items[i] is PersonPhone) {
-                        var personPhone = items[i] as PersonPhone
-                        var hash = HashGenerator.hashGeneratorForObject(personPhone.value)
-
-                        personPhone.value.purposes?.forEach { purpose ->
-                            itemsHm.put(purpose.toString() + hash, personPhone)
-                        }
-                    }
-
-                    if (items[i] is PersonPatrimony) {
-                        var personPatrimony = items[i] as PersonPatrimony
-                        var hash = HashGenerator.hashGeneratorForObject(personPatrimony.value)
-
-                        itemsHm.put(personPatrimony.value.patrimonyType.toString() + hash, personPatrimony)
-                    }
-                }
-
-                hmFinal.put(member.name, itemsHm)
-            } else {
-                if (null != member.getter.call(obj))
-                    hmFinal.put(member.name, member.getter.call(obj)!!)
-            }
-        }
-        return hmFinal
-    }
-
-/*
 
     fun concacAddressData(addressData: AddressData): HashMap<String, Any> {
         var addresses: HashMap<String, Any> = hashMapOf()
