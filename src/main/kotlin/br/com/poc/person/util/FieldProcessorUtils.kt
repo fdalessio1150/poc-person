@@ -1,9 +1,6 @@
 package br.com.poc.person.util
 
-import br.com.poc.person.application.out.model.PersonAddress
-import br.com.poc.person.application.out.model.PersonPatrimony
-import br.com.poc.person.application.out.model.PersonPhone
-import br.com.poc.person.application.out.model.Validation
+import br.com.poc.person.application.out.model.*
 import kotlin.reflect.full.memberProperties
 
 class FieldProcessorUtils {
@@ -58,14 +55,7 @@ class FieldProcessorUtils {
 
         obj.forEach { item ->
             if(item is PersonAddress) {
-                item.value.purposes?.forEach { purpose ->
-                    var personAddres = item.clone(item)
-
-                    // remover o relationship quando eh proposito unico
-                    personAddres.value.purposes = mutableSetOf(purpose)
-
-                    itemsHm.put(purpose.toString() + "|" + personAddres.hashCode(), personAddres)
-                }
+                itemsHm.putAll(addressHashProcessor(item))
             }
         }
         return itemsHm
@@ -79,14 +69,18 @@ class FieldProcessorUtils {
 
     }
 
-    fun addressHashProcessor(items: ArrayList<Any>, i: Int): HashMap<String, Any> {
+    fun addressHashProcessor(address: PersonAddress): HashMap<String, Any> {
         var itemsHm = hashMapOf<String, Any>()
-        var personAddress = items[i] as PersonAddress
-        var hash = HashGenerator.hashGeneratorForObject(personAddress.value)
 
-        personAddress.value.purposes?.forEach { purpose ->
-            itemsHm.put(purpose.toString() + "|" + hash, personAddress)
+        address.value.purposes?.forEach { purpose ->
+            var newPersonAddress = address.clone(address)
+
+            // remover o relationship quando eh proposito unico?
+            newPersonAddress.value.purposes = mutableSetOf(purpose)
+
+            itemsHm.put(purpose.toString() + "|" + newPersonAddress.value.hashCode(), newPersonAddress)
         }
+
         return itemsHm
     }
 
