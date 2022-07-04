@@ -51,7 +51,7 @@ class PocController {
             } else if (fieldIn!!::class.javaObjectType.simpleName != "HashMap" && fieldIn is PersonObject<*>) {
                 processSimpleField(fieldIn, fieldFound as PersonObject<*>, person)
                 // Encontrou na request e no banco de dados, portanto avaliar o que gera diff para campos complexos
-            } else if (fieldIn!!::class.javaObjectType.simpleName == "HashMap"){
+            } else if (fieldIn!!::class.javaObjectType.simpleName == "HashMap") {
                 compareComplexField(fieldIn as HashMap<String, Any>, fieldFound as HashMap<String, Any>, person)
                 // Campos que estao na raiz do objeto como tenantId, clientId, journeyId
             } else {
@@ -63,7 +63,11 @@ class PocController {
 
     }
 
-    private fun processSimpleField(fieldIn: PersonObject<*>, fieldFound: PersonObject<*>, person: Person): Triple<Any, Any, Any> {
+    private fun processSimpleField(
+        fieldIn: PersonObject<*>,
+        fieldFound: PersonObject<*>,
+        person: Person
+    ): Triple<Any, Any, Any> {
         var fieldInValue = fieldIn.value
         var fieldFoundValue = fieldFound.value
 
@@ -101,9 +105,9 @@ class PocController {
     private fun increaseCompletudeValidation(validationIn: Validation?, validationFound: Validation?): Validation {
         if (validationIn?.level!! > validationFound?.level!!) {
             return validationIn
-        } else if (validationIn?.level!! == validationFound?.level!! && validationIn?.sourceDate!!.isAfter(validationFound?.sourceDate!!)) {
+        } else if (validationIn.level!! == validationFound.level!! && validationIn.sourceDate!!.isAfter(validationFound.sourceDate!!)) {
             return validationIn
-        } else if (validationIn?.sourceDate!!.isAfter(validationFound?.sourceDate!!)) {
+        } else if (validationIn.sourceDate!!.isAfter(validationFound.sourceDate!!)) {
             validationFound.sourceDate = validationIn.sourceDate
             return validationFound
         } else {

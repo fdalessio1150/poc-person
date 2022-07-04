@@ -18,8 +18,8 @@ class PersonApplicationTests {
 
     @Test
     fun personPoc() {
-        var request: Person = createRequestPerson("1", "1", "2")
-        var database: Person = createDatabasePerson("1", "1", "1")
+        val request: Person = createRequestPerson("1", "1", "2")
+        val database: Person = createDatabasePerson("1", "1", "1")
 
         processFieldsv2(request, database)
     }
@@ -28,9 +28,9 @@ class PersonApplicationTests {
         val requestPersonHm = toHashMap(requestPerson)
         val databasePersonHm = toHashMap(databasePerson)
 
-        var personFinal = hashMapOf<String, Any>()
-        var personOpenDiff = hashMapOf<String, Any>()
-        var personCloseDiff = hashMapOf<String, Any>()
+        val personFinal = hashMapOf<String, Any>()
+        val personOpenDiff = hashMapOf<String, Any>()
+        val personCloseDiff = hashMapOf<String, Any>()
 
         // processo apenas o que esta igual
         requestPersonHm.entries.forEach { (k, requestField) ->
@@ -59,8 +59,8 @@ class PersonApplicationTests {
 
         // processo o restante dos campos para montar o objeto final
         requestPerson::class.memberProperties.forEach { field ->
-            var requestField = requestPersonHm[field.name]
-            var databaseField = databasePersonHm[field.name]
+            val requestField = requestPersonHm[field.name]
+            val databaseField = databasePersonHm[field.name]
 
             if (requestField == null && databaseField == null) {
                 personFinal[field.name] = field
@@ -180,12 +180,12 @@ class PersonApplicationTests {
     ): Validation {
         return if (requestFieldValidation?.level!! > databaseFieldValidation?.level!!) {
             requestFieldValidation
-        } else if ((requestFieldValidation?.level!! == databaseFieldValidation?.level!!) && requestFieldValidation?.sourceDate!!.isAfter(
-                databaseFieldValidation?.sourceDate!!
+        } else if ((requestFieldValidation.level!! == databaseFieldValidation.level!!) && requestFieldValidation.sourceDate!!.isAfter(
+                databaseFieldValidation.sourceDate!!
             )
         ) {
             requestFieldValidation
-        } else if (requestFieldValidation?.sourceDate!!.isAfter(databaseFieldValidation?.sourceDate!!)) {
+        } else if (requestFieldValidation.sourceDate!!.isAfter(databaseFieldValidation.sourceDate!!)) {
             databaseFieldValidation.sourceDate = requestFieldValidation.sourceDate
             databaseFieldValidation
         } else {
@@ -214,7 +214,7 @@ class PersonApplicationTests {
         obj::class.memberProperties.forEach { member ->
             var memberObject = member.getter.call(obj)
 
-            if (memberObject != null && memberObject!!::class.javaObjectType.simpleName == "ArrayList") {
+            if (memberObject != null && memberObject::class.javaObjectType.simpleName == "ArrayList") {
 
                 var itemsHm = hashMapOf<String, Any>()
                 var items = (member.getter.call(obj)!! as ArrayList<Any>)
