@@ -6,4 +6,10 @@ data class Patrimony(
     var hasNoPatrimony: Boolean?,
     var patrimonyType: Int?,
     var patrimonyValue: BigDecimal?
-)
+) {
+    fun clone(patrimony: Patrimony): Patrimony {
+        return Patrimony(patrimony.hasNoPatrimony,
+        patrimony.patrimonyType,
+        patrimony.patrimonyValue)
+    }
+}

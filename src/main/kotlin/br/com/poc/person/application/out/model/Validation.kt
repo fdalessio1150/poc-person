@@ -13,4 +13,18 @@ data class Validation(
     var isCritical: Boolean? = null,
     var hashValue: String? = null,
     var hashVersion: Int? = null
-)
+) {
+    fun clone(validation: Validation?): Validation {
+        return Validation(validation?.sourceDate,
+            validation?.information,
+            validation?.journeyId,
+            validation?.level,
+            validation?.sourceCode,
+            validation?.methodCode,
+            validation?.validateCompletess,
+            validation?.isCritical,
+            validation?.hashValue,
+            validation?.hashVersion
+        )
+    }
+}
