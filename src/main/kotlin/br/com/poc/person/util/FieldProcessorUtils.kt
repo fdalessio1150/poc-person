@@ -68,14 +68,14 @@ class FieldProcessorUtils {
                 item.value.purposes?.forEach { purpose ->
                     var newPersonAddress = item.clone(item)
                     newPersonAddress.value.purposes = mutableSetOf(purpose)
-                    itemsHm[purpose.toString() + "|" + newPersonAddress.value.hashCode()] = newPersonAddress // chamar a limpeza de strings para comparar
+                    itemsHm[purpose.toString() + "|" + newPersonAddress.value.hashCode()] = newPersonAddress // chamar a limpeza de strings
                 }
             }
             if(item is PersonPhone) {
                 item.value.purposes?.forEach { purpose ->
                     var newPersonPhone = item.clone(item)
                     newPersonPhone.value.purposes = mutableSetOf(purpose)
-                    itemsHm[purpose.toString() + "|" + newPersonPhone.value.hashCode()] = newPersonPhone // chamar a limpeza de strings para comparar
+                    itemsHm[purpose.toString() + "|" + newPersonPhone.value.hashCode()] = newPersonPhone // chamar a limpeza de strings
                 }
             }
             if(item is PersonPatrimony) {
@@ -94,14 +94,14 @@ class FieldProcessorUtils {
             if(item is PersonAddress) {
                 item.value.purposes?.forEach { addressPurpose ->
                     if(purposes != null && purposes[addressPurpose] != null) {
-                        uniqueItems[addressPurpose] = item.value.hashCode().toString()
+                        uniqueItems[addressPurpose] = item.value.hashCode().toString() // chamar a limpeza de strings
                     }
                 }
             }
             if(item is PersonPhone) {
                 item.value.purposes?.forEach { phonePurpose ->
                     if(purposes != null && purposes[phonePurpose] != null) {
-                        uniqueItems[phonePurpose] = item.value.hashCode().toString()
+                        uniqueItems[phonePurpose] = item.value.hashCode().toString() // chamar a limpeza de strings
                     }
                 }
             }
@@ -121,35 +121,11 @@ class FieldProcessorUtils {
 
         obj.forEach { item ->
             if(item is PersonAddress) {
-                itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings para comparar
+                itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings
             }
             if(item is PersonPhone) {
-                itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings para comparar
+                itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings
             }
-        }
-
-        return itemsHm
-    }
-
-    fun addressHashProcessor(address: PersonAddress): HashMap<String, Any> {
-        var itemsHm = hashMapOf<String, Any>()
-
-        address.value.purposes?.forEach { purpose ->
-            var newPersonAddress = address.clone(address)
-            newPersonAddress.value.purposes = mutableSetOf(purpose)
-            itemsHm[purpose.toString() + "|" + newPersonAddress.value.hashCode()] = newPersonAddress
-        }
-
-        return itemsHm
-    }
-
-    fun phoneHashProcessor(phone: PersonPhone): HashMap<String, Any> {
-        var itemsHm = hashMapOf<String, Any>()
-
-        phone.value.purposes?.forEach { purpose ->
-            var newPersonPhone = phone.clone(phone)
-            newPersonPhone.value.purposes = mutableSetOf(purpose)
-            itemsHm[purpose.toString() + "|" + newPersonPhone.value.hashCode()] = newPersonPhone
         }
 
         return itemsHm

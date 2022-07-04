@@ -72,8 +72,8 @@ class AddressFieldProcessor {
                                 databaseHmValueAsKey[databaseHash] = requestFoundInDatabase
 
                                 // fecho diffs
-                                hashMap[UPDATE_PERSON] = requestFoundInDatabase // esta igual mas nao podemos considerar o que veio da request
-                                hashMap[CLOSE_DIFF] = requestFoundInDatabase // esta igual e podemos enviar para tentar fechar diff
+                                hashMap[UPDATE_PERSON] = requestFoundInDatabase
+                                hashMap[CLOSE_DIFF] = requestFoundInDatabase
                             }
                         }
                     // valor eh igual

@@ -33,10 +33,8 @@ class PocProcessor {
             if (requestField::class.javaObjectType.simpleName != "HashMap" && (requestField is PersonObject<*> && databaseField is PersonObject<*>)) {
                 hm = simpleFieldProcessor.processSimpleField(requestField, databaseField, requestPerson)
             } else if (requestField::class.javaObjectType.simpleName == "ArrayList" && (requestField is ArrayList<*> && databaseField is ArrayList<*>)) {
-                if (!requestField.isNullOrEmpty()) {
-                    if (requestField.first() is PersonAddress) {
-                        hm = addressFieldProcessor.processAddressField(requestField as ArrayList<PersonAddress>, databaseField as ArrayList<PersonAddress>, requestPerson)
-                    }
+                if (!requestField.isNullOrEmpty() && requestField.first() is PersonAddress) {
+                    hm = addressFieldProcessor.processAddressField(requestField as ArrayList<PersonAddress>, databaseField as ArrayList<PersonAddress>, requestPerson)
                 }
             }
 
