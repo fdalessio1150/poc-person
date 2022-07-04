@@ -34,7 +34,6 @@ class SimpleFieldProcessor {
         requestField: PersonObject<*>,
         databaseField: PersonObject<*>
     ): HashMap<String, Any> {
-
         val hashMap = hashMapOf<String, Any>()
         val isFieldEqual = fieldProcessorUtils.compareSimpleField(requestField.value, databaseField.value)
 

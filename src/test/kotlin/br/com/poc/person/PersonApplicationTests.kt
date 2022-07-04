@@ -3,13 +3,8 @@ package br.com.poc.person
 import br.com.poc.person.PersonFactoryTest.PersonFactoryTest.createDatabasePerson
 import br.com.poc.person.PersonFactoryTest.PersonFactoryTest.createRequestPerson
 import br.com.poc.person.application.out.model.*
-import br.com.poc.person.service.ComplexFieldProcessor
 import br.com.poc.person.service.PocProcessor
-import br.com.poc.person.service.SimpleFieldProcessor
-import br.com.poc.person.util.FieldProcessorUtils
-import br.com.poc.person.util.HashGenerator
 import org.junit.jupiter.api.Test
-import kotlin.reflect.full.memberProperties
 
 class PersonApplicationTests {
 

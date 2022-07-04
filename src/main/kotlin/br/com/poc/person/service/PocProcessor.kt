@@ -1,6 +1,7 @@
 package br.com.poc.person.service
 
 import br.com.poc.person.application.out.model.Person
+import br.com.poc.person.application.out.model.PersonAddress
 import br.com.poc.person.application.out.model.PersonObject
 import br.com.poc.person.util.Constants.CLOSE_DIFF
 import br.com.poc.person.util.Constants.OPEN_DIFF
@@ -12,7 +13,7 @@ class PocProcessor {
 
     // como separar a manipulacao com o Diff para um local apenas?
 
-    private val complexFieldProcessor = ComplexFieldProcessor()
+    private val addressFieldProcessor = AddressFieldProcessor()
     private val simpleFieldProcessor = SimpleFieldProcessor()
     private val fieldProcessorUtils = FieldProcessorUtils()
 
@@ -32,7 +33,11 @@ class PocProcessor {
             if (requestField::class.javaObjectType.simpleName != "HashMap" && (requestField is PersonObject<*> && databaseField is PersonObject<*>)) {
                 hm = simpleFieldProcessor.processSimpleField(requestField, databaseField, requestPerson)
             } else if (requestField::class.javaObjectType.simpleName == "ArrayList" && (requestField is ArrayList<*> && databaseField is ArrayList<*>)) {
-                hm = complexFieldProcessor.processComplexField(requestField as ArrayList<Any>, databaseField as ArrayList<Any>, requestPerson)
+                if (!requestField.isNullOrEmpty()) {
+                    if (requestField.first() is PersonAddress) {
+                        hm = addressFieldProcessor.processAddressField(requestField as ArrayList<PersonAddress>, databaseField as ArrayList<PersonAddress>, requestPerson)
+                    }
+                }
             }
 
             hm.entries.forEach { (action, obj) ->

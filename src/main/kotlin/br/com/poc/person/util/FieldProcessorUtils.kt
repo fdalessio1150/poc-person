@@ -6,6 +6,7 @@ import kotlin.reflect.full.memberProperties
 class FieldProcessorUtils {
 
     // classe estatica?
+    // criar um objeto do tipo validation clonando?
     fun increaseCompletenessValidation(
         requestFieldValidation: Validation?,
         databaseFieldValidation: Validation?
@@ -23,6 +24,15 @@ class FieldProcessorUtils {
         } else {
             databaseFieldValidation
         }
+    }
+    fun isCompletenessGreater(requestFieldValidation: Validation?, databaseFieldValidation: Validation?): Boolean {
+        if (requestFieldValidation?.level!! > databaseFieldValidation?.level!! ||
+            (requestFieldValidation?.level!! == databaseFieldValidation?.level!! &&
+                    (requestFieldValidation?.sourceDate!!.isEqual(databaseFieldValidation?.sourceDate!!) || requestFieldValidation?.sourceDate!!.isAfter(databaseFieldValidation?.sourceDate!!)))
+                    ) {
+            return true
+        }
+        return false
     }
 
     /**
@@ -50,23 +60,75 @@ class FieldProcessorUtils {
         return hmFinal
     }
 
-    fun toHashMapByPurposeAndValueAsKey(obj: ArrayList<*>): HashMap<String, Any> {
+    fun toHashMapByPurposeOrTypeAndValueAsKey(obj: ArrayList<*>): HashMap<String, Any> {
         var itemsHm = hashMapOf<String, Any>()
 
         obj.forEach { item ->
             if(item is PersonAddress) {
-                itemsHm.putAll(addressHashProcessor(item))
+                item.value.purposes?.forEach { purpose ->
+                    var newPersonAddress = item.clone(item)
+                    newPersonAddress.value.purposes = mutableSetOf(purpose)
+                    itemsHm[purpose.toString() + "|" + newPersonAddress.value.hashCode()] = newPersonAddress // chamar a limpeza de strings para comparar
+                }
+            }
+            if(item is PersonPhone) {
+                item.value.purposes?.forEach { purpose ->
+                    var newPersonPhone = item.clone(item)
+                    newPersonPhone.value.purposes = mutableSetOf(purpose)
+                    itemsHm[purpose.toString() + "|" + newPersonPhone.value.hashCode()] = newPersonPhone // chamar a limpeza de strings para comparar
+                }
+            }
+            if(item is PersonPatrimony) {
+                itemsHm[item.value.patrimonyType.toString()] = item
             }
         }
         return itemsHm
     }
 
-    fun toHashMapByUniquePurposeAsKey(obj: ArrayList<Any>, uniquePurpose: HashMap<String, HashMap<Int, String>>) {
+    fun toHashMapByUniquePurposeOrTypeAsKey(obj: ArrayList<*>, uniquePurpose: HashMap<String, HashMap<Int, String>>): HashMap<Int, String> {
+        var uniqueItems = hashMapOf<Int, String>()
 
+        obj.forEach { item ->
+            val purposes = uniquePurpose[item::class.javaObjectType.simpleName]
+
+            if(item is PersonAddress) {
+                item.value.purposes?.forEach { addressPurpose ->
+                    if(purposes != null && purposes[addressPurpose] != null) {
+                        uniqueItems[addressPurpose] = item.value.hashCode().toString()
+                    }
+                }
+            }
+            if(item is PersonPhone) {
+                item.value.purposes?.forEach { phonePurpose ->
+                    if(purposes != null && purposes[phonePurpose] != null) {
+                        uniqueItems[phonePurpose] = item.value.hashCode().toString()
+                    }
+                }
+            }
+            if(item is PersonPatrimony) {
+                if (item.value.patrimonyType != null) {
+                    uniqueItems[Integer.valueOf(item.value.patrimonyType!!)] = item.value.hashCode().toString()
+                }
+
+            }
+        }
+
+        return uniqueItems
     }
 
-    fun toHashMapByValueAsKey(obj: ArrayList<Any>) {
+    fun toHashMapByValueAsKey(obj: ArrayList<*>): HashMap<String, Any> {
+        var itemsHm = hashMapOf<String, Any>()
 
+        obj.forEach { item ->
+            if(item is PersonAddress) {
+                itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings para comparar
+            }
+            if(item is PersonPhone) {
+                itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings para comparar
+            }
+        }
+
+        return itemsHm
     }
 
     fun addressHashProcessor(address: PersonAddress): HashMap<String, Any> {
@@ -74,34 +136,22 @@ class FieldProcessorUtils {
 
         address.value.purposes?.forEach { purpose ->
             var newPersonAddress = address.clone(address)
-
-            // remover o relationship quando eh proposito unico?
             newPersonAddress.value.purposes = mutableSetOf(purpose)
-
-            itemsHm.put(purpose.toString() + "|" + newPersonAddress.value.hashCode(), newPersonAddress)
+            itemsHm[purpose.toString() + "|" + newPersonAddress.value.hashCode()] = newPersonAddress
         }
 
         return itemsHm
     }
 
-
-    fun phoneHashProcessor(items: ArrayList<Any>, i: Int): HashMap<String, Any> {
+    fun phoneHashProcessor(phone: PersonPhone): HashMap<String, Any> {
         var itemsHm = hashMapOf<String, Any>()
-        var personPhone = items[i] as PersonPhone
-        var hash = HashGenerator.hashGeneratorForObject(personPhone.value)
 
-        personPhone.value.purposes?.forEach { purpose ->
-            itemsHm.put(purpose.toString() + "|" + hash, personPhone)
+        phone.value.purposes?.forEach { purpose ->
+            var newPersonPhone = phone.clone(phone)
+            newPersonPhone.value.purposes = mutableSetOf(purpose)
+            itemsHm[purpose.toString() + "|" + newPersonPhone.value.hashCode()] = newPersonPhone
         }
-        return itemsHm
-    }
 
-    fun patrimonyHashProcessor(items: ArrayList<Any>, i: Int): HashMap<String, Any> {
-        var itemsHm = hashMapOf<String, Any>()
-        var personPatrimony = items[i] as PersonPatrimony
-        var hash = HashGenerator.hashGeneratorForObject(personPatrimony.value)
-
-        itemsHm.put(personPatrimony.value.patrimonyType.toString() + "|" + hash, personPatrimony)
         return itemsHm
     }
 
