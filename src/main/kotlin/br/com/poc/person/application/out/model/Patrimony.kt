@@ -4,7 +4,7 @@ import java.math.BigDecimal
 
 data class Patrimony(
     var hasNoPatrimony: Boolean?,
-    var patrimonyType: Int?,
+    var patrimonyType: Long?,
     var patrimonyValue: BigDecimal?
 ) {
     fun clone(patrimony: Patrimony): Patrimony {

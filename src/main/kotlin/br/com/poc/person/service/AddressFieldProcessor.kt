@@ -6,6 +6,7 @@ import br.com.poc.person.util.Constants.CLOSE_DIFF
 import br.com.poc.person.util.Constants.UPDATE_PERSON
 import br.com.poc.person.util.FieldProcessorUtils
 
+
 class AddressFieldProcessor {
 
     // como separar a manipulacao com o Diff para um local apenas?
@@ -19,8 +20,8 @@ class AddressFieldProcessor {
         databaseField: ArrayList<PersonAddress>,
         requestPerson: Person
     ): HashMap<String, Any> {
-        val requestHmPurposeOrTypeAndValueAsKey = fieldProcessorUtils.toHashMapByPurposeOrTypeAndValueAsKey(requestField)
-        val databaseHmUniquePurposeOrTypeAsKey = fieldProcessorUtils.toHashMapByUniquePurposeOrTypeAsKey(databaseField, uniqueHm)
+        val requestHmPurposeOrTypeAndValueAsKey = fieldProcessorUtils.toHashMapByPurposeAndValueAsKey(requestField)
+        val databaseHmUniquePurposeOrTypeAsKey = fieldProcessorUtils.toHashMapByUniquePurposeAsKey(databaseField, uniqueHm)
         val databaseHmValueAsKey = fieldProcessorUtils.toHashMapByValueAsKey(databaseField)
 
         if (requestPerson.isTombamento == true && requestPerson.isCompleteness == false) {

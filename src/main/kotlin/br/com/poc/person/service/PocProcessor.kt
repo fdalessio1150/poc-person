@@ -3,6 +3,7 @@ package br.com.poc.person.service
 import br.com.poc.person.application.out.model.Person
 import br.com.poc.person.application.out.model.PersonAddress
 import br.com.poc.person.application.out.model.PersonObject
+import br.com.poc.person.application.out.model.PersonPatrimony
 import br.com.poc.person.util.Constants.CLOSE_DIFF
 import br.com.poc.person.util.Constants.OPEN_DIFF
 import br.com.poc.person.util.Constants.UPDATE_PERSON
@@ -16,6 +17,7 @@ class PocProcessor {
     private val addressFieldProcessor = AddressFieldProcessor()
     private val simpleFieldProcessor = SimpleFieldProcessor()
     private val fieldProcessorUtils = FieldProcessorUtils()
+    private val patrimonyFieldProcessor = PatrimonyFieldProcessor()
 
     fun processFields(requestPerson: Person, databasePerson: Person) {
         val requestPersonHm = fieldProcessorUtils.toHashMapByFieldAsKey(requestPerson)
@@ -35,6 +37,9 @@ class PocProcessor {
             } else if (requestField::class.javaObjectType.simpleName == "ArrayList" && (requestField is ArrayList<*> && databaseField is ArrayList<*>)) {
                 if (!requestField.isNullOrEmpty() && requestField.first() is PersonAddress) {
                     hm = addressFieldProcessor.processAddressField(requestField as ArrayList<PersonAddress>, databaseField as ArrayList<PersonAddress>, requestPerson)
+                }
+                if (!requestField.isNullOrEmpty() && requestField.first() is PersonPatrimony) {
+                    hm = patrimonyFieldProcessor.processPatrimony(requestField as ArrayList<PersonPatrimony>, databaseField as ArrayList<PersonPatrimony>, requestPerson)
                 }
             }
 

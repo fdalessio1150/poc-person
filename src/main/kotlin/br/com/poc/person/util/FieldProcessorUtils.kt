@@ -60,7 +60,7 @@ class FieldProcessorUtils {
         return hmFinal
     }
 
-    fun toHashMapByPurposeOrTypeAndValueAsKey(obj: ArrayList<*>): HashMap<String, Any> {
+    fun toHashMapByPurposeAndValueAsKey(obj: ArrayList<*>): HashMap<String, Any> {
         var itemsHm = hashMapOf<String, Any>()
 
         obj.forEach { item ->
@@ -78,14 +78,11 @@ class FieldProcessorUtils {
                     itemsHm[purpose.toString() + "|" + newPersonPhone.value.hashCode()] = newPersonPhone // chamar a limpeza de strings
                 }
             }
-            if(item is PersonPatrimony) {
-                itemsHm[item.value.patrimonyType.toString()] = item
-            }
         }
         return itemsHm
     }
 
-    fun toHashMapByUniquePurposeOrTypeAsKey(obj: ArrayList<*>, uniquePurpose: HashMap<String, HashMap<Int, String>>): HashMap<Int, String> {
+    fun toHashMapByUniquePurposeAsKey(obj: ArrayList<*>, uniquePurpose: HashMap<String, HashMap<Int, String>>): HashMap<Int, String> {
         var uniqueItems = hashMapOf<Int, String>()
 
         obj.forEach { item ->
@@ -105,12 +102,6 @@ class FieldProcessorUtils {
                     }
                 }
             }
-            if(item is PersonPatrimony) {
-                if (item.value.patrimonyType != null) {
-                    uniqueItems[Integer.valueOf(item.value.patrimonyType!!)] = item.value.hashCode().toString()
-                }
-
-            }
         }
 
         return uniqueItems
@@ -125,6 +116,18 @@ class FieldProcessorUtils {
             }
             if(item is PersonPhone) {
                 itemsHm[item.value.hashCode().toString()] = item // chamar a limpeza de strings
+            }
+        }
+
+        return itemsHm
+    }
+
+    fun toHashMapByTypeAsKey(obj: ArrayList<*>): HashMap<Long?, Any?> {
+        var itemsHm = hashMapOf<Long?, Any?>()
+
+        obj.forEach { item ->
+            if(item is PersonPatrimony) {
+                itemsHm[item.value.patrimonyType] = item
             }
         }
 
